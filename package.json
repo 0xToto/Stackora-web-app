@@ -1,0 +1,19 @@
+{
+  "name": "stackora",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "server",
+    "mobile"
+  ],
+  "scripts": {
+    "server": "npm run dev -w server",
+    "mobile": "npm run start -w mobile",
+    "test": "npm test -w server",
+    "typecheck": "npm run typecheck --workspaces",
+    "build:web": "npm run build:web -w mobile"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

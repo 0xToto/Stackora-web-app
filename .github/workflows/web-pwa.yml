@@ -1,0 +1,29 @@
+name: STACKORA - Construire la PWA
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "mobile/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/web-pwa.yml"
+permissions:
+  contents: read
+jobs:
+  web-pwa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck -w mobile
+      - run: npm run build:web
+      - uses: actions/upload-artifact@v4
+        with:
+          name: STACKORA-PWA-site-web
+          path: mobile/dist
+          if-no-files-found: error
