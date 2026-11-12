@@ -1,12 +1,11 @@
-// HTML shell for Expo Router static web export (PWA metadata).
-import React from "react";
-import { ScrollViewStyleReset, useServerDocumentContext } from "expo-router/html";
+// Root HTML compatible with Expo Router in Expo SDK 55.
+// The server document context hook is not available in this SDK.
+import { ScrollViewStyleReset } from "expo-router/html";
 import type { PropsWithChildren } from "react";
 
 export default function Root({ children }: PropsWithChildren) {
-  const { headNodes, bodyNodes, htmlAttributes, bodyAttributes } = useServerDocumentContext();
   return (
-    <html lang="fr" {...htmlAttributes}>
+    <html lang="fr">
       <head>
         <meta charSet="utf-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
@@ -19,11 +18,9 @@ export default function Root({ children }: PropsWithChildren) {
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <ScrollViewStyleReset />
-        {headNodes}
       </head>
-      <body {...bodyAttributes}>
+      <body>
         {children}
-        {bodyNodes}
         <script dangerouslySetInnerHTML={{ __html: `if ('serviceWorker' in navigator && location.protocol === 'https:') { addEventListener('load', function () { navigator.serviceWorker.register('/sw.js').catch(console.warn); }); }` }} />
       </body>
     </html>
