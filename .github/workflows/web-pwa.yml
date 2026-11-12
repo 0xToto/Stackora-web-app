@@ -34,10 +34,10 @@ jobs:
       - name: Verifier TypeScript
         run: npm run typecheck -w mobile
 
-      - name: Compiler STACKORA PWA avec Render
+      - name: Compiler STACKORA avec Northflank
         run: npm run build:web
         env:
-          EXPO_PUBLIC_API_URL: https://stackora-web-app.onrender.com
+          EXPO_PUBLIC_API_URL: https://api--stackora--rc725y9s4fxd.code.run
 
       - name: Generer les fichiers du site
         uses: actions/upload-artifact@v4
