@@ -1,0 +1,265 @@
+warning: in the working copy of '.dockerignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.github/workflows/checks.yml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.github/workflows/web-pwa.yml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Dockerfile', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'compose.yaml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/ARCHITECTURE.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/IPHONE.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/PWA_INSTALLATION.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/RULES.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/STATUS.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/TEST_RESULTS.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'mobile/.env.example', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'mobile/.env.production.example', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'mobile/app.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'mobile/app/+html.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'mobile/app/_layout.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'mobile/app/index.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'mobile/eas.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'mobile/netlify.toml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'mobile/package.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'mobile/public/manifest.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'mobile/public/sw.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'mobile/src/storage.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'mobile/src/types.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'mobile/src/useStackora.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'mobile/tsconfig.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'package-lock.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'package.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/smoke-web.cjs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'server/.env.example', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'server/migrations/001_initial.sql', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'server/package.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'server/src/app.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'server/src/cards.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'server/src/engine.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'server/src/main.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'server/src/store.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'server/src/tournament.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'server/test/api.test.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'server/test/engine.test.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'server/tsconfig.json', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/.github/workflows/web-pwa.yml b/.github/workflows/web-pwa.yml[m
+[1mindex 29c67e1..9b89d23 100644[m
+[1m--- a/.github/workflows/web-pwa.yml[m
+[1m+++ b/.github/workflows/web-pwa.yml[m
+[36m@@ -1,6 +1,4 @@[m
+[31m-[m
+ name: STACKORA - Construire la PWA[m
+[31m-[m
+ on:[m
+   workflow_dispatch:[m
+   push:[m
+[36m@@ -10,39 +8,24 @@[m [mon:[m
+       - "package.json"[m
+       - "package-lock.json"[m
+       - ".github/workflows/web-pwa.yml"[m
+[31m-[m
+ permissions:[m
+   contents: read[m
+[31m-[m
+ jobs:[m
+   web-pwa:[m
+     runs-on: ubuntu-latest[m
+[31m-[m
+     steps:[m
+[31m-      - name: Recuperer le projet[m
+[31m-        uses: actions/checkout@v4[m
+[31m-[m
+[31m-      - name: Installer Node.js 24[m
+[31m-        uses: actions/setup-node@v4[m
+[32m+[m[32m      - uses: actions/checkout@v4[m
+[32m+[m[32m      - uses: actions/setup-node@v4[m
+         with:[m
+           node-version: '24'[m
+           cache: npm[m
+[31m-[m
+[31m-      - name: Installer les dependances[m
+[31m-        run: npm ci[m
+[31m-[m
+[31m-      - name: Verifier TypeScript[m
+[31m-        run: npm run typecheck -w mobile[m
+[31m-[m
+[31m-      - name: Compiler STACKORA avec Northflank[m
+[31m-        run: npm run build:web[m
+[32m+[m[32m      - run: npm ci[m
+[32m+[m[32m      - run: npm run typecheck -w mobile[m
+[32m+[m[32m      - run: npm run build:web[m
+         env:[m
+           EXPO_PUBLIC_API_URL: https://api--stackora--rc725y9s4fxd.code.run[m
+[31m-[m
+[31m-      - name: Generer les fichiers du site[m
+[31m-        uses: actions/upload-artifact@v4[m
+[32m+[m[32m      - uses: actions/upload-artifact@v4[m
+         with:[m
+           name: STACKORA-PWA-site-web[m
+           path: mobile/dist[m
+           if-no-files-found: error[m
+[31m-          retention-days: 7[m
+[1mdiff --git a/mobile/app/index.tsx b/mobile/app/index.tsx[m
+[1mindex 164ca92..9038ea6 100644[m
+[1m--- a/mobile/app/index.tsx[m
+[1m+++ b/mobile/app/index.tsx[m
+[36m@@ -1,6 +1,8 @@[m
+[31m-import React, { useEffect, useState } from "react";[m
+[32m+[m[32mimport React, { useEffect, useRef, useState } from "react";[m
+ import {[m
+   View,[m
+[32m+[m[32m  Animated,[m
+[32m+[m[32m  Easing,[m
+   Text,[m
+   TextInput,[m
+   Pressable,[m
+[36m@@ -179,6 +181,37 @@[m [mfunction Card({ card, small = false }: { card?: string; small?: boolean }) {[m
+     </View>[m
+   );[m
+ }[m
+[32m+[m[32mfunction DealtCard({ card, index, small }: { card?: string; index: number; small?: boolean }) {[m
+[32m+[m[32m  const progress = useRef(new Animated.Value(0)).current;[m
+[32m+[m[32m  const [faceUp, setFaceUp] = useState(index !== 4);[m
+[32m+[m[32m  useEffect(() => {[m
+[32m+[m[32m    progress.setValue(0);[m
+[32m+[m[32m    setFaceUp(index !== 4);[m
+[32m+[m[32m    const animation = Animated.timing(progress, {[m
+[32m+[m[32m      toValue: 1,[m
+[32m+[m[32m      duration: index === 4 ? 1100 : 430,[m
+[32m+[m[32m      easing: Easing.out(Easing.cubic),[m
+[32m+[m[32m      useNativeDriver: true,[m
+[32m+[m[32m    });[m
+[32m+[m[32m    animation.start(({ finished }) => { if (finished) setFaceUp(true); });[m
+[32m+[m[32m    return () => animation.stop();[m
+[32m+[m[32m  }, [card, index, progress]);[m
+[32m+[m[32m  const river = index === 4;[m
+[32m+[m[32m  return ([m
+[32m+[m[32m    <Animated.View style={{[m
+[32m+[m[32m      opacity: progress.interpolate({ inputRange: [0, 0.15, 1], outputRange: [river ? 1 : 0, 1, 1] }),[m
+[32m+[m[32m      transform: [[m
+[32m+[m[32m        { translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [river ? -32 : -20, 0] }) },[m
+[32m+[m[32m        { scale: progress.interpolate({ inputRange: [0, 1], outputRange: [river ? 1.65 : 0.85, 1] }) },[m
+[32m+[m[32m        { rotate: progress.interpolate({ inputRange: [0, 1], outputRange: [river ? "-9deg" : "0deg", "0deg"] }) },[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      zIndex: river && !faceUp ? 8 : 1,[m
+[32m+[m[32m    }}>[m
+[32m+[m[32m      <Card card={faceUp ? card : undefined} small={small} />[m
+[32m+[m[32m      {river && !faceUp && <Text style={{ color: C.gold, position: "absolute", right: 1, top: 0, fontSize: 14 }}>◢</Text>}[m
+[32m+[m[32m    </Animated.View>[m
+[32m+[m[32m  );[m
+[32m+[m[32m}[m
+ function Mark() {[m
+   return ([m
+     <View style={s.mark}>[m
+[36m@@ -208,6 +241,9 @@[m [mexport default function App() {[m
+   const [raise, setRaise] = useState("");[m
+   const [now, setNow] = useState(Date.now());[m
+   const { width } = useWindowDimensions();[m
+[32m+[m[32m  const [visibleBoard, setVisibleBoard] = useState(0);[m
+[32m+[m[32m  const activeHandRef = useRef("");[m
+[32m+[m
+   useEffect(() => {[m
+     const i = setInterval(() => setNow(Date.now()), 250);[m
+     return () => clearInterval(i);[m
+[36m@@ -236,6 +272,34 @@[m [mexport default function App() {[m
+     g?.tables.findIndex((t) => t.players.includes(a.user?.id ?? "")) ?? -1;[m
+   const table = g?.tables[tableIndex ?? Math.max(0, own)];[m
+   const h = table?.hand;[m
+[32m+[m[32m  useEffect(() => {[m
+[32m+[m[32m    if (!h || !table) { setVisibleBoard(0); activeHandRef.current = ""; return; }[m
+[32m+[m[32m    const key = `${table.id}-${h.id}`;[m
+[32m+[m[32m    if (activeHandRef.current !== key) {[m
+[32m+[m[32m      activeHandRef.current = key;[m
+[32m+[m[32m      setVisibleBoard(h.allIn?.boardAtCall.length ?? 0);[m
+[32m+[m[32m    }[m
+[32m+[m[32m    const desired = h.board.length;[m
+[32m+[m[32m    const start = h.stage === "done" && h.allIn ? h.allIn.boardAtCall.length : 0;[m
+[32m+[m[32m    const tasks: ReturnType<typeof setTimeout>[] = [];[m
+[32m+[m[32m    if (h.stage === "done") {[m
+[32m+[m[32m      for (let n = Math.max(start + 1, 1); n <= desired; n++) {[m
+[32m+[m[32m        const offset = n - start;[m
+[32m+[m[32m        const delay = offset * 580 + (n >= 5 ? 500 : 0);[m
+[32m+[m[32m        tasks.push(setTimeout(() => setVisibleBoard((v) => Math.max(v, n)), delay));[m
+[32m+[m[32m      }[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m      for (let n = 1; n <= desired; n++) {[m
+[32m+[m[32m        tasks.push(setTimeout(() => setVisibleBoard((v) => Math.max(v, n)), n * 230));[m
+[32m+[m[32m      }[m
+[32m+[m[32m    }[m
+[32m+[m[32m    return () => tasks.forEach(clearTimeout);[m
+[32m+[m[32m  }, [h?.id, h?.board.length, h?.stage, table?.id]);[m
+[32m+[m[32m  const streetEquity = h?.allIn?.streets?.filter((s) => s.boardCount <= visibleBoard).at(-1);[m
+[32m+[m[32m  const displayedOdds = streetEquity?.odds ?? h?.allIn?.odds ?? [];[m
+[32m+[m[32m  const streetName = (streetEquity?.boardCount ?? h?.allIn?.boardAtCall.length ?? 0) === 0[m
+[32m+[m[32m    ? "PRÉFLOP" : (streetEquity?.boardCount ?? 0) === 3 ? "FLOP" :[m
+[32m+[m[32m      (streetEquity?.boardCount ?? 0) === 4 ? "TURN" : "RIVER";[m
+   const me = h?.players.find((p) => p.id === a.user?.id);[m
+   const legal = h?.legal;[m
+   const amount = (n: number) =>[m
+[36m@@ -628,11 +692,10 @@[m [mexport default function App() {[m
+                           },[m
+                         ]}[m
+                       >[m
+[31m-                        {(h.board.length[m
+[31m-                          ? h.board[m
+[31m-                          : Array.from({ length: 5 }, () => undefined)[m
+[31m-                        ).map((c, i) => ([m
+[31m-                          <Card key={i} card={c} small={h.board.length > 5} />[m
+[32m+[m[32m                        {Array.from({ length: Math.max(5, h.board.length) }, (_, i) => ([m
+[32m+[m[32m                          i < visibleBoard && h.board[i] ?[m
+[32m+[m[32m                            <DealtCard key={`${h.id}-${i}`} card={h.board[i]} index={i} small={h.board.length > 5} /> :[m
+[32m+[m[32m                            <Card key={`${h.id}-back-${i}`} small={h.board.length > 5} />[m
+                         ))}[m
+                       </View>[m
+                       {g.variant === "ghost" && ([m
+[36m@@ -671,6 +734,41 @@[m [mexport default function App() {[m
+                                 .join(", ")}[m
+                         </Text>[m
+                       ))}[m
+[32m+[m[32m                      {h.allIn && ([m
+[32m+[m[32m                        <View style={{ gap: 8, paddingVertical: 12 }}>[m
+[32m+[m[32m                          <Text style={[s.heading, { color: C.gold, fontSize: 17 }]}>ALL-IN · CARTES RÉVÉLÉES</Text>[m
+[32m+[m[32m                          <Text style={s.caption}>Équité exacte · {streetName} · toutes les cartes possibles, égalités partagées.</Text>[m
+[32m+[m[32m                          {displayedOdds.map((odd) => ([m
+[32m+[m[32m                            <View key={odd.id} style={{ gap: 5 }}>[m
+[32m+[m[32m                              <View style={[s.row, { justifyContent: "space-between" }]}>[m
+[32m+[m[32m                                <Text style={s.body}>{odd.id === "__ghost__" ? "GHOST" : h.players.find((p) => p.id === odd.id)?.name}</Text>[m
+[32m+[m[32m                                <Text style={{ color: C.gold, fontWeight: "800" }}>{odd.percent.toFixed(1)} %</Text>[m
+[32m+[m[32m                              </View>[m
+[32m+[m[32m                              <View style={{ backgroundColor: C.line, height: 7, borderRadius: 10, overflow: "hidden" }}>[m
+[32m+[m[32m                                <View style={{ backgroundColor: C.gold, width: `${odd.percent}%`, height: "100%" }} />[m
+[32m+[m[32m                              </View>[m
+[32m+[m[32m                              {odd.outs.length > 0 && odd.percent < Math.max(...displayedOdds.map((other) => other.percent)) && ([m
+[32m+[m[32m                                <Text style={s.caption}>[m
+[32m+[m[32m                                  {streetEquity?.boardCount === 4 ? "Rivers gagnantes (ou partage du pot)" : "Cartes améliorant l’équité"} : {odd.outs.map((c) => `${c[0] === "T" ? "10" : c[0]}${({s:"♠",h:"♥",d:"♦",c:"♣"} as Record<string,string>)[c[1]]}`).join(" · ")}[m
+[32m+[m[32m                                </Text>[m
+[32m+[m[32m                              )}[m
+[32m+[m[32m                            </View>[m
+[32m+[m[32m                          ))}[m
+[32m+[m[32m                        </View>[m
+[32m+[m[32m                      )}[m
+[32m+[m[32m                      {g.variant === "ghost" && h.ghostCards.length > 0 && ([m
+[32m+[m[32m                        <Text style={[s.caption, { color: C.gold }]}>Ghost révélé : {h.ghostCards.join(" / ")} · showdown contre le Ghost même après un fold.</Text>[m
+[32m+[m[32m                      )}[m
+[32m+[m[32m                      {h.bonus.length > 0 && ([m
+[32m+[m[32m                        <View style={{ gap: 6 }}>[m
+[32m+[m[32m                          <Text style={[s.heading, { color: C.gold, fontSize: 16 }]}>PRIME 7/2 · MAIN RÉVÉLÉE</Text>[m
+[32m+[m[32m                          {Array.from(new Set(h.bonus.map((b) => b.to))).map((id) => ([m
+[32m+[m[32m                            <Text key={id} style={s.body}>[m
+[32m+[m[32m                              {h.players.find((p) => p.id === id)?.name} : 7 / 2 dévoilé automatiquement[m
+[32m+[m[32m                            </Text>[m
+[32m+[m[32m                          ))}[m
+[32m+[m[32m                        </View>[m
+[32m+[m[32m                      )}[m
+                       {h.bonus.length > 0 && ([m
+                         <Text style={s.caption}>[m
+                           Prime 7/2 :{" "}[m
+[1mdiff --git a/mobile/src/types.ts b/mobile/src/types.ts[m
+[1mindex 9bd186b..eec7182 100644[m
+[1m--- a/mobile/src/types.ts[m
+[1m+++ b/mobile/src/types.ts[m
+[36m@@ -18,6 +18,7 @@[m [mexport type Hand = {[m
+   board: string[];[m
+   ghostCards: string[];[m
+   ghostPot: number;[m
+[32m+[m[32m  allIn?: { boardAtCall: string[]; odds: { id: string; percent: number; outs: string[] }[]; streets?: { boardCount: number; odds: { id: string; percent: number; outs: string[] }[] }[] } | null;[m
+   bb: number
