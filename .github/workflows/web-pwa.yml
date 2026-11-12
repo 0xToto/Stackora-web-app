@@ -1,4 +1,6 @@
+
 name: STACKORA - Construire la PWA
+
 on:
   workflow_dispatch:
   push:
@@ -8,22 +10,39 @@ on:
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/web-pwa.yml"
+
 permissions:
   contents: read
+
 jobs:
   web-pwa:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Recuperer le projet
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js 24
+        uses: actions/setup-node@v4
         with:
           node-version: '24'
           cache: npm
-      - run: npm ci
-      - run: npm run typecheck -w mobile
-      - run: npm run build:web
-      - uses: actions/upload-artifact@v4
+
+      - name: Installer les dependances
+        run: npm ci
+
+      - name: Verifier TypeScript
+        run: npm run typecheck -w mobile
+
+      - name: Compiler STACKORA PWA avec Render
+        run: npm run build:web
+        env:
+          EXPO_PUBLIC_API_URL: https://stackora-web-app.onrender.com
+
+      - name: Generer les fichiers du site
+        uses: actions/upload-artifact@v4
         with:
           name: STACKORA-PWA-site-web
           path: mobile/dist
           if-no-files-found: error
+          retention-days: 7
