@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
+  Animated,
+  Easing,
   Text,
   TextInput,
   Pressable,
@@ -179,6 +181,37 @@ function Card({ card, small = false }: { card?: string; small?: boolean }) {
     </View>
   );
 }
+function DealtCard({ card, index, small }: { card?: string; index: number; small?: boolean }) {
+  const progress = useRef(new Animated.Value(0)).current;
+  const [faceUp, setFaceUp] = useState(index !== 4);
+  useEffect(() => {
+    progress.setValue(0);
+    setFaceUp(index !== 4);
+    const animation = Animated.timing(progress, {
+      toValue: 1,
+      duration: index === 4 ? 1100 : 430,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    });
+    animation.start(({ finished }) => { if (finished) setFaceUp(true); });
+    return () => animation.stop();
+  }, [card, index, progress]);
+  const river = index === 4;
+  return (
+    <Animated.View style={{
+      opacity: progress.interpolate({ inputRange: [0, 0.15, 1], outputRange: [river ? 1 : 0, 1, 1] }),
+      transform: [
+        { translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [river ? -32 : -20, 0] }) },
+        { scale: progress.interpolate({ inputRange: [0, 1], outputRange: [river ? 1.65 : 0.85, 1] }) },
+        { rotate: progress.interpolate({ inputRange: [0, 1], outputRange: [river ? "-9deg" : "0deg", "0deg"] }) },
+      ],
+      zIndex: river && !faceUp ? 8 : 1,
+    }}>
+      <Card card={faceUp ? card : undefined} small={small} />
+      {river && !faceUp && <Text style={{ color: C.gold, position: "absolute", right: 1, top: 0, fontSize: 14 }}>◢</Text>}
+    </Animated.View>
+  );
+}
 function Mark() {
   return (
     <View style={s.mark}>
@@ -208,6 +241,9 @@ export default function App() {
   const [raise, setRaise] = useState("");
   const [now, setNow] = useState(Date.now());
   const { width } = useWindowDimensions();
+  const [visibleBoard, setVisibleBoard] = useState(0);
+  const activeHandRef = useRef("");
+
   useEffect(() => {
     const i = setInterval(() => setNow(Date.now()), 250);
     return () => clearInterval(i);
@@ -236,6 +272,34 @@ export default function App() {
     g?.tables.findIndex((t) => t.players.includes(a.user?.id ?? "")) ?? -1;
   const table = g?.tables[tableIndex ?? Math.max(0, own)];
   const h = table?.hand;
+  useEffect(() => {
+    if (!h || !table) { setVisibleBoard(0); activeHandRef.current = ""; return; }
+    const key = `${table.id}-${h.id}`;
+    if (activeHandRef.current !== key) {
+      activeHandRef.current = key;
+      setVisibleBoard(h.allIn?.boardAtCall.length ?? 0);
+    }
+    const desired = h.board.length;
+    const start = h.stage === "done" && h.allIn ? h.allIn.boardAtCall.length : 0;
+    const tasks: ReturnType<typeof setTimeout>[] = [];
+    if (h.stage === "done") {
+      for (let n = Math.max(start + 1, 1); n <= desired; n++) {
+        const offset = n - start;
+        const delay = offset * 580 + (n >= 5 ? 500 : 0);
+        tasks.push(setTimeout(() => setVisibleBoard((v) => Math.max(v, n)), delay));
+      }
+    } else {
+      for (let n = 1; n <= desired; n++) {
+        tasks.push(setTimeout(() => setVisibleBoard((v) => Math.max(v, n)), n * 230));
+      }
+    }
+    return () => tasks.forEach(clearTimeout);
+  }, [h?.id, h?.board.length, h?.stage, table?.id]);
+  const streetEquity = h?.allIn?.streets?.filter((s) => s.boardCount <= visibleBoard).at(-1);
+  const displayedOdds = streetEquity?.odds ?? h?.allIn?.odds ?? [];
+  const streetName = (streetEquity?.boardCount ?? h?.allIn?.boardAtCall.length ?? 0) === 0
+    ? "PRÉFLOP" : (streetEquity?.boardCount ?? 0) === 3 ? "FLOP" :
+      (streetEquity?.boardCount ?? 0) === 4 ? "TURN" : "RIVER";
   const me = h?.players.find((p) => p.id === a.user?.id);
   const legal = h?.legal;
   const amount = (n: number) =>
@@ -628,11 +692,10 @@ export default function App() {
                           },
                         ]}
                       >
-                        {(h.board.length
-                          ? h.board
-                          : Array.from({ length: 5 }, () => undefined)
-                        ).map((c, i) => (
-                          <Card key={i} card={c} small={h.board.length > 5} />
+                        {Array.from({ length: Math.max(5, h.board.length) }, (_, i) => (
+                          i < visibleBoard && h.board[i] ?
+                            <DealtCard key={`${h.id}-${i}`} card={h.board[i]} index={i} small={h.board.length > 5} /> :
+                            <Card key={`${h.id}-back-${i}`} small={h.board.length > 5} />
                         ))}
                       </View>
                       {g.variant === "ghost" && (
@@ -671,6 +734,41 @@ export default function App() {
                                 .join(", ")}
                         </Text>
                       ))}
+                      {h.allIn && (
+                        <View style={{ gap: 8, paddingVertical: 12 }}>
+                          <Text style={[s.heading, { color: C.gold, fontSize: 17 }]}>ALL-IN · CARTES RÉVÉLÉES</Text>
+                          <Text style={s.caption}>Équité exacte · {streetName} · toutes les cartes possibles, égalités partagées.</Text>
+                          {displayedOdds.map((odd) => (
+                            <View key={odd.id} style={{ gap: 5 }}>
+                              <View style={[s.row, { justifyContent: "space-between" }]}>
+                                <Text style={s.body}>{odd.id === "__ghost__" ? "GHOST" : h.players.find((p) => p.id === odd.id)?.name}</Text>
+                                <Text style={{ color: C.gold, fontWeight: "800" }}>{odd.percent.toFixed(1)} %</Text>
+                              </View>
+                              <View style={{ backgroundColor: C.line, height: 7, borderRadius: 10, overflow: "hidden" }}>
+                                <View style={{ backgroundColor: C.gold, width: `${odd.percent}%`, height: "100%" }} />
+                              </View>
+                              {odd.outs.length > 0 && odd.percent < Math.max(...displayedOdds.map((other) => other.percent)) && (
+                                <Text style={s.caption}>
+                                  {streetEquity?.boardCount === 4 ? "Rivers gagnantes (ou partage du pot)" : "Cartes améliorant l’équité"} : {odd.outs.map((c) => `${c[0] === "T" ? "10" : c[0]}${({s:"♠",h:"♥",d:"♦",c:"♣"} as Record<string,string>)[c[1]]}`).join(" · ")}
+                                </Text>
+                              )}
+                            </View>
+                          ))}
+                        </View>
+                      )}
+                      {g.variant === "ghost" && h.ghostCards.length > 0 && (
+                        <Text style={[s.caption, { color: C.gold }]}>Ghost révélé : {h.ghostCards.join(" / ")} · showdown contre le Ghost même après un fold.</Text>
+                      )}
+                      {h.bonus.length > 0 && (
+                        <View style={{ gap: 6 }}>
+                          <Text style={[s.heading, { color: C.gold, fontSize: 16 }]}>PRIME 7/2 · MAIN RÉVÉLÉE</Text>
+                          {Array.from(new Set(h.bonus.map((b) => b.to))).map((id) => (
+                            <Text key={id} style={s.body}>
+                              {h.players.find((p) => p.id === id)?.name} : 7 / 2 dévoilé automatiquement
+                            </Text>
+                          ))}
+                        </View>
+                      )}
                       {h.bonus.length > 0 && (
                         <Text style={s.caption}>
                           Prime 7/2 :{" "}

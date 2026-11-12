@@ -18,6 +18,7 @@ export type Hand = {
   board: string[];
   ghostCards: string[];
   ghostPot: number;
+  allIn?: { boardAtCall: string[]; odds: { id: string; percent: number; outs: string[] }[]; streets?: { boardCount: number; odds: { id: string; percent: number; outs: string[] }[] }[] } | null;
   bb: number;
   sb: number;
   button: number;

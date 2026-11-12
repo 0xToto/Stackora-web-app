@@ -1,4 +1,5 @@
 import { shuffled, evaluate, compare, type Card } from "./cards.js";
+import { calculateExactEquity, type EquitySnapshot } from "./equity.js";
 export type Variant = "classic" | "sevenTwo" | "ghost" | "redRiver";
 export type Action = {
   type: "fold" | "check" | "call" | "raise";
@@ -49,6 +50,7 @@ export interface Hand {
   initialTotal: number;
   showdown: boolean;
   bonus: { from: string; to: string; amount: number }[];
+  allIn: { boardAtCall: Card[]; odds: { id: string; percent: number; outs: Card[] }[]; streets: EquitySnapshot[] } | null;
 }
 const alive = (h: Hand) => h.players.filter((p) => !p.folded);
 const able = (h: Hand) => alive(h).filter((p) => p.stack > 0);
@@ -121,6 +123,7 @@ export function startHand(
     initialTotal: players.reduce((s, p) => s + p.stack, ghostPot),
     showdown: false,
     bonus: [],
+    allIn: null,
   };
   for (let round = 0; round < 2; round++)
     for (const p of h.players) p.cards.push(draw(h));
@@ -206,7 +209,9 @@ function settleFlow(h: Hand, after: number) {
       h.turn = owes.id;
       return;
     }
+    const calledAt = [...h.board];
     runout(h);
+    if (alive(h).length > 1) h.allIn = calculateAllIn(h, calledAt);
     finish(h);
     return;
   }
@@ -259,6 +264,18 @@ function runout(h: Hand) {
   while (advance(h)) {
     /* No betting with all remaining players all-in. */
   }
+}
+/** Exact board enumeration for every street after the last betting decision.
+ * Never disclose opponent hole cards before betting is closed. */
+function calculateAllIn(h: Hand, boardAtCall: Card[]) {
+  const contestants = alive(h).map((p) => ({ id: p.id, cards: p.cards }));
+  // The Ghost behaves like an extra contender whenever this variant is enabled.
+  if (h.variant === "ghost" && h.ghostCards.length === 2)
+    contestants.push({ id: "__ghost__", cards: h.ghostCards });
+  const boardCounts = [0, 3, 4, 5].filter((n) => n >= boardAtCall.length && n <= h.board.length);
+  if (!boardCounts.includes(boardAtCall.length)) boardCounts.unshift(boardAtCall.length);
+  const streets = boardCounts.map((n) => calculateExactEquity(contestants, h.board.slice(0, n)));
+  return { boardAtCall, odds: streets[0].odds, streets };
 }
 export function buildPots(players: HandPlayer[]): Pot[] {
   const levels = [
@@ -380,7 +397,7 @@ export function publicHand(h: Hand, viewer: string) {
     players: h.players.map((p) => ({
       ...p,
       cards:
-        p.id === viewer || (h.stage === "done" && h.showdown && !p.folded)
+        p.id === viewer || (h.stage === "done" && ((h.showdown && !p.folded) || h.bonus.some((b) => b.to === p.id)))
           ? p.cards
           : [],
     })),

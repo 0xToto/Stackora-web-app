@@ -601,3 +601,38 @@ test("transferred previous BB does not pay BB immediately after final-table merg
     .concat(seats.filter((p) => p.seat <= button.seat));
   assert.notEqual(after[1].id, donorBig);
 });
+
+
+test("paid preflop all-in reveals called hands and equity once betting is closed", () => {
+  const h = startHand(players(2, 100), 0, 20, 431, "classic", 0,
+    rig([["As", "Ah"], ["Ks", "Kh"]], ["2c", "3c", "4d", "8d", "9s"]));
+  act(h, "p0", { type: "raise", amount: 100 });
+  assert.equal(h.allIn, null);
+  assert.deepEqual(publicHand(h, "p1").players[0].cards, []);
+  act(h, "p1", { type: "call" });
+  assert.equal(h.stage, "done");
+  assert.deepEqual(h.allIn?.boardAtCall, []);
+  assert.equal(h.allIn?.odds.length, 2);
+  assert.ok(h.allIn!.odds.every((o) => o.percent >= 0 && o.percent <= 100));
+  assert.deepEqual(publicHand(h, "p1").players[0].cards, ["As", "Ah"]);
+});
+
+test("fold against Ghost runs complete board and publicly exposes Ghost", () => {
+  const h = startHand(players(2), 0, 20, 433, "ghost", 0,
+    rig([["As", "Kh"], ["7s", "2c"]], ["2h", "3s", "5d", "9c", "Jh"], ["Qs", "Qc"]));
+  act(h, "p0", { type: "fold" });
+  assert.equal(h.stage, "done");
+  assert.equal(h.board.length, 5);
+  assert.deepEqual(publicHand(h, "p0").ghostCards, ["Qs", "Qc"]);
+});
+
+test("seven-two bluff winner is exposed even without a showdown", () => {
+  const h = startHand(players(2), 0, 20, 435, "sevenTwo", 0,
+    rig([["7s", "2h"], ["As", "Kh"]], ["3d", "4c", "5s", "8h", "9d"]));
+  act(h, "p0", { type: "raise", amount: 60 });
+  act(h, "p1", { type: "fold" });
+  assert.equal(h.showdown, false);
+  assert.ok(h.bonus.some((b) => b.to === "p0"));
+  assert.deepEqual(publicHand(h, "p1").players[0].cards, ["7s", "2h"]);
+  assert.deepEqual(publicHand(h, "p1").players[1].cards, ["As", "Kh"]);
+});

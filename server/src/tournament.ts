@@ -273,7 +273,7 @@ export function tick(t: Tournament, now = Date.now()): boolean {
   }
   if (t.tables.every((tb) => tb.hand!.stage === "done")) {
     if (!t.roundReadyAt) {
-      t.roundReadyAt = now + 4000;
+      t.roundReadyAt = now + 8500;
       changed = true;
     } else if (now >= t.roundReadyAt) {
       const previous = new Map(t.players.map((p) => [p.id, p.stack]));
