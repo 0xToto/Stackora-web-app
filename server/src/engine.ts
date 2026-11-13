@@ -50,6 +50,8 @@ export interface Hand {
   initialTotal: number;
   showdown: boolean;
   bonus: { from: string; to: string; amount: number }[];
+  presentation?: { startedAt: number; revealAt: number[]; endsAt: number; publishedCount: number; stacks: { id: string; stack: number; total: number }[] };
+  revealed?: string[];
   allIn: { boardAtCall: Card[]; odds: { id: string; percent: number; outs: Card[] }[]; streets: EquitySnapshot[] } | null;
 }
 const alive = (h: Hand) => h.players.filter((p) => !p.folded);
@@ -210,9 +212,13 @@ function settleFlow(h: Hand, after: number) {
       return;
     }
     const calledAt = [...h.board];
+    const stacks = h.players.map(({ id, stack, total }) => ({ id, stack, total }));
     runout(h);
     if (alive(h).length > 1) h.allIn = calculateAllIn(h, calledAt);
     finish(h);
+    if (h.board.length > calledAt.length) {
+      h.presentation = { startedAt: 0, revealAt: [], endsAt: 0, publishedCount: calledAt.length, stacks };
+    }
     return;
   }
   const waiting = next(h, after, (p) => needs(h, p));
@@ -268,11 +274,12 @@ function runout(h: Hand) {
 /** Exact board enumeration for every street after the last betting decision.
  * Never disclose opponent hole cards before betting is closed. */
 function calculateAllIn(h: Hand, boardAtCall: Card[]) {
+  if (boardAtCall.length > 5) return { boardAtCall, odds: [], streets: [] };
   const contestants = alive(h).map((p) => ({ id: p.id, cards: p.cards }));
   // The Ghost behaves like an extra contender whenever this variant is enabled.
   if (h.variant === "ghost" && h.ghostCards.length === 2)
     contestants.push({ id: "__ghost__", cards: h.ghostCards });
-  const boardCounts = [0, 3, 4, 5].filter((n) => n >= boardAtCall.length && n <= h.board.length);
+  const boardCounts = Array.from({ length: h.board.length + 1 }, (_, n) => n).filter(n => n >= boardAtCall.length && n <= 5);
   if (!boardCounts.includes(boardAtCall.length)) boardCounts.unshift(boardAtCall.length);
   const streets = boardCounts.map((n) => calculateExactEquity(contestants, h.board.slice(0, n)));
   return { boardAtCall, odds: streets[0].odds, streets };
@@ -307,6 +314,7 @@ function finish(h: Hand) {
   refundUncalled(h);
   const remaining = alive(h);
   h.showdown = remaining.length > 1 || h.variant === "ghost";
+  h.revealed = h.variant === "sevenTwo" && remaining.length === 1 && remaining[0].cards.map(c => c[0]).sort().join("") === "27" ? [remaining[0].id] : [];
   h.pots = buildPots(h.players);
   if (h.ghostPot > 0)
     h.pots.unshift({
@@ -389,15 +397,41 @@ export function assertConservation(h: Hand) {
   )
     throw Error(`Chip conservation: ${total} != ${h.initialTotal}`);
 }
-export function publicHand(h: Hand, viewer: string) {
-  const { deck, ghostCards, initialTotal, ...safe } = h;
+export function schedulePresentation(h: Hand, now: number) {
+  const p = h.presentation;
+  if (!p || p.startedAt) return;
+  p.startedAt = now;
+  let at = now;
+  p.revealAt = h.board.map((_, i) => {
+    if (i < (h.allIn?.boardAtCall.length ?? 0)) return now;
+    at += i >= 4 ? 5000 : 2000;
+    return at;
+  });
+  p.endsAt = at;
+}
+export function publicHand(h: Hand, viewer: string, now = Date.now()) {
+  const { deck, ghostCards, initialTotal, presentation, ...safe } = h;
+  const count = presentation?.startedAt ? presentation.revealAt.filter(at => at <= now).length : h.board.length;
+  const pending = !!presentation?.startedAt && now < presentation.endsAt;
+  const streets = h.allIn?.streets.filter(s => s.boardCount <= count);
   return {
     ...safe,
+    board: h.board.slice(0, count),
+    stage: pending ? "runout" : h.stage,
+    pots: pending ? [] : h.pots,
+    bonus: pending ? [] : h.bonus,
+    log: pending ? h.log.slice(0, -1) : h.log,
+    allIn: h.allIn ? { ...h.allIn, streets, odds: streets?.at(-1)?.odds ?? h.allIn.odds } : null,
+    presentation: presentation?.startedAt ? { startedAt: presentation.startedAt, endsAt: presentation.endsAt,
+      nextAt: pending ? presentation.revealAt[count] : null, count,
+      river: pending && count >= 4 } : null,
+    ghostPot: pending ? 0 : h.ghostPot,
     ghostCards: h.stage === "done" ? ghostCards : [],
     players: h.players.map((p) => ({
       ...p,
+      ...(pending ? presentation?.stacks.find(q => q.id === p.id) : {}),
       cards:
-        p.id === viewer || (h.stage === "done" && ((h.showdown && !p.folded) || h.bonus.some((b) => b.to === p.id)))
+        p.id === viewer || (h.stage === "done" && ((h.showdown && !p.folded) || h.bonus.some((b) => b.to === p.id) || h.revealed?.includes(p.id)))
           ? p.cards
           : [],
     })),

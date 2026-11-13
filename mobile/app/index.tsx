@@ -1,8 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
-  Animated,
-  Easing,
   Text,
   TextInput,
   Pressable,
@@ -12,13 +10,13 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { storage as SecureStore } from "../src/storage";
 import { useStackora } from "../src/useStackora";
-import type { Variant, Hand, Player } from "../src/types";
+import { PokerTable } from "../src/PokerTable";
+import type { Variant } from "../src/types";
 const C = {
   bg: "#101315",
   panel: "#19201F",
@@ -141,77 +139,6 @@ function Field({
     </View>
   );
 }
-function Card({ card, small = false }: { card?: string; small?: boolean }) {
-  const red = card && "hd".includes(card[1]);
-  return (
-    <View
-      style={[
-        s.card,
-        small && { width: 25, height: 36, borderRadius: 4 },
-        !card && {
-          backgroundColor: "#273E37",
-          borderColor: C.gold,
-          borderWidth: 1,
-        },
-      ]}
-    >
-      {card ? (
-        <>
-          <Text
-            style={{
-              color: red ? "#B43E46" : "#172822",
-              fontSize: small ? 12 : 22,
-              fontWeight: "800",
-            }}
-          >
-            {card[0] === "T" ? "10" : card[0]}
-          </Text>
-          <Text
-            style={{
-              color: red ? "#B43E46" : "#172822",
-              fontSize: small ? 12 : 20,
-            }}
-          >
-            {{ s: "♠", h: "♥", d: "♦", c: "♣" }[card[1]]}
-          </Text>
-        </>
-      ) : (
-        <Text style={{ color: C.gold, fontSize: small ? 16 : 28 }}>◈</Text>
-      )}
-    </View>
-  );
-}
-function DealtCard({ card, index, small }: { card?: string; index: number; small?: boolean }) {
-  const progress = useRef(new Animated.Value(0)).current;
-  const [faceUp, setFaceUp] = useState(index !== 4);
-  useEffect(() => {
-    progress.setValue(0);
-    setFaceUp(index !== 4);
-    const animation = Animated.timing(progress, {
-      toValue: 1,
-      duration: index === 4 ? 1100 : 430,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: true,
-    });
-    animation.start(({ finished }) => { if (finished) setFaceUp(true); });
-    return () => animation.stop();
-  }, [card, index, progress]);
-  const river = index === 4;
-  return (
-    <Animated.View style={{
-      opacity: progress.interpolate({ inputRange: [0, 0.15, 1], outputRange: [river ? 1 : 0, 1, 1] }),
-      transform: [
-        { translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [river ? -32 : -20, 0] }) },
-        { scale: progress.interpolate({ inputRange: [0, 1], outputRange: [river ? 1.65 : 0.85, 1] }) },
-        { rotate: progress.interpolate({ inputRange: [0, 1], outputRange: [river ? "-9deg" : "0deg", "0deg"] }) },
-      ],
-      zIndex: river && !faceUp ? 8 : 1,
-    }}>
-      <Card card={faceUp ? card : undefined} small={small} />
-      {river && !faceUp && <Text style={{ color: C.gold, position: "absolute", right: 1, top: 0, fontSize: 14 }}>◢</Text>}
-    </Animated.View>
-  );
-}
 function Mark() {
   return (
     <View style={s.mark}>
@@ -238,16 +165,7 @@ export default function App() {
   const [units, setUnits] = useState(false);
   const [felt, setFelt] = useState(C.felt);
   const [tableIndex, setTableIndex] = useState<number | null>(null);
-  const [raise, setRaise] = useState("");
-  const [now, setNow] = useState(Date.now());
-  const { width } = useWindowDimensions();
-  const [visibleBoard, setVisibleBoard] = useState(0);
-  const activeHandRef = useRef("");
 
-  useEffect(() => {
-    const i = setInterval(() => setNow(Date.now()), 250);
-    return () => clearInterval(i);
-  }, []);
   useEffect(() => {
     SecureStore.getItemAsync("stackora-prefs")
       .then((v) => {
@@ -272,41 +190,6 @@ export default function App() {
     g?.tables.findIndex((t) => t.players.includes(a.user?.id ?? "")) ?? -1;
   const table = g?.tables[tableIndex ?? Math.max(0, own)];
   const h = table?.hand;
-  useEffect(() => {
-    if (!h || !table) { setVisibleBoard(0); activeHandRef.current = ""; return; }
-    const key = `${table.id}-${h.id}`;
-    if (activeHandRef.current !== key) {
-      activeHandRef.current = key;
-      setVisibleBoard(h.allIn?.boardAtCall.length ?? 0);
-    }
-    const desired = h.board.length;
-    const start = h.stage === "done" && h.allIn ? h.allIn.boardAtCall.length : 0;
-    const tasks: ReturnType<typeof setTimeout>[] = [];
-    if (h.stage === "done") {
-      for (let n = Math.max(start + 1, 1); n <= desired; n++) {
-        const offset = n - start;
-        const delay = offset * 580 + (n >= 5 ? 500 : 0);
-        tasks.push(setTimeout(() => setVisibleBoard((v) => Math.max(v, n)), delay));
-      }
-    } else {
-      for (let n = 1; n <= desired; n++) {
-        tasks.push(setTimeout(() => setVisibleBoard((v) => Math.max(v, n)), n * 230));
-      }
-    }
-    return () => tasks.forEach(clearTimeout);
-  }, [h?.id, h?.board.length, h?.stage, table?.id]);
-  const streetEquity = h?.allIn?.streets?.filter((s) => s.boardCount <= visibleBoard).at(-1);
-  const displayedOdds = streetEquity?.odds ?? h?.allIn?.odds ?? [];
-  const streetName = (streetEquity?.boardCount ?? h?.allIn?.boardAtCall.length ?? 0) === 0
-    ? "PRÉFLOP" : (streetEquity?.boardCount ?? 0) === 3 ? "FLOP" :
-      (streetEquity?.boardCount ?? 0) === 4 ? "TURN" : "RIVER";
-  const me = h?.players.find((p) => p.id === a.user?.id);
-  const legal = h?.legal;
-  const amount = (n: number) =>
-    units && h ? `${(n / h.bb).toFixed(1)} BB` : n.toLocaleString("fr-FR");
-  useEffect(() => {
-    if (legal) setRaise(String(Math.min(legal.minTo, legal.maxTo)));
-  }, [h?.turn, legal?.call, legal?.minTo, legal?.maxTo]);
   async function open(id: string) {
     await a.safe(async () => {
       a.update(await a.api("/tournaments/" + id));
@@ -319,71 +202,6 @@ export default function App() {
       setTableIndex(null);
       void a.safe(a.refresh);
     } else setScreen("home");
-  }
-  function seat(p: Player, i: number) {
-    const isMe = p.id === a.user?.id;
-    const active = p.id === h?.turn;
-    const coords = [
-      [50, 6],
-      [82, 18],
-      [84, 47],
-      [79, 76],
-      [50, 91],
-      [21, 76],
-      [16, 47],
-      [18, 18],
-    ];
-    const rotated = me ? (p.seat - me.seat + 8 + 4) % 8 : p.seat;
-    const [x, y] = coords[rotated];
-    return (
-      <View
-        key={p.id}
-        style={[
-          s.seat,
-          { left: `${x}%`, top: `${y}%`, opacity: p.folded ? 0.52 : 1 },
-        ]}
-      >
-        <View
-          style={[
-            s.avatar,
-            active && { borderColor: C.gold, borderWidth: 3 },
-            isMe && { backgroundColor: "#3A5143" },
-          ]}
-        >
-          <Text
-            style={{
-              fontSize: 20,
-              color: active ? C.gold : C.text,
-              fontWeight: "700",
-            }}
-          >
-            {p.name.slice(0, 1)}
-          </Text>
-          {h?.button === p.seat && (
-            <View style={s.dealer}>
-              <Text style={{ fontSize: 9, fontWeight: "900" }}>D</Text>
-            </View>
-          )}
-        </View>
-        <Text numberOfLines={1} style={s.seatName}>
-          {isMe ? "Vous" : p.name}
-        </Text>
-        <Text style={{ fontSize: 12, color: C.gold, fontWeight: "700" }}>
-          {amount(p.stack)}
-        </Text>
-        <View style={s.row}>
-          {(p.cards?.length ? p.cards : ["", ""]).map((c, i) => (
-            <Card key={i} card={c || undefined} small />
-          ))}
-        </View>
-        {!!p.bet && <Text style={s.bet}>● {amount(p.bet)}</Text>}
-        {!!p.lastAction && (
-          <Text numberOfLines={1} style={{ fontSize: 9, color: C.muted }}>
-            {p.lastAction}
-          </Text>
-        )}
-      </View>
-    );
   }
   if (!a.hydrated)
     return (
@@ -398,7 +216,7 @@ export default function App() {
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <View style={s.top}>
+        <View style={[s.top, g?.status === "playing" && { height: 52, paddingVertical: 0 }]}>
           <Pressable onPress={back} style={s.row}>
             <Mark />
             <View>
@@ -437,10 +255,12 @@ export default function App() {
           />
         )}
         <ScrollView
+          scrollEnabled={g?.status !== "playing"}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={[
             s.content,
-            { maxWidth: 600, width: "100%", alignSelf: "center" },
+            { maxWidth: g?.status === "playing" ? 1000 : 600, width: "100%", alignSelf: "center" },
+            g?.status === "playing" && { padding: 0, gap: 0, paddingBottom: 0, flexGrow: 1 },
           ]}
         >
           {!a.user ? (
@@ -502,13 +322,13 @@ export default function App() {
             </>
           ) : g ? (
             <>
-              <Pressable onPress={back}>
+              {g.status !== "playing" && <Pressable onPress={back}>
                 <Text style={s.link}>‹ Mes tournois</Text>
-              </Pressable>
-              <View style={[s.row, { justifyContent: "space-between" }]}>
+              </Pressable>}
+              <View style={[s.row, { justifyContent: "space-between", paddingHorizontal: g.status === "playing" ? 12 : 0 }]}>
                 <View style={{ flex: 1 }}>
-                  <Label>{modes.find((m) => m.id === g.variant)?.name}</Label>
-                  <Text style={s.heading}>{g.name}</Text>
+                  <Text numberOfLines={1} style={[s.heading, g.status === "playing" && { fontSize: 13, lineHeight: 24 }]}>{g.name}</Text>
+                  {g.status !== "playing" && <Label>{modes.find((m) => m.id === g.variant)?.name}</Label>}
                 </View>
                 <Text
                   style={{ color: a.online ? "#80C6A2" : C.gold, fontSize: 11 }}
@@ -625,285 +445,7 @@ export default function App() {
                   <Button title="Retour à mes tournois" onPress={back} />
                 </>
               ) : h ? (
-                <>
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={s.row}
-                  >
-                    {g.tables.map((t, i) => (
-                      <Pressable
-                        key={t.id}
-                        onPress={() => setTableIndex(i)}
-                        style={[
-                          s.chip,
-                          t.id === table?.id && { borderColor: C.gold },
-                        ]}
-                      >
-                        <Text style={{ color: C.text, fontSize: 12 }}>
-                          Table {i + 1} · {t.players.length}
-                          {i === own ? " · Vous" : ""}
-                        </Text>
-                      </Pressable>
-                    ))}
-                  </ScrollView>
-                  <View style={[s.row, { justifyContent: "space-between" }]}>
-                    <Text style={s.caption}>
-                      MAIN #{h.id} · {h.sb}/{h.bb}
-                    </Text>
-                    <Pressable onPress={() => void prefs(!units, felt)}>
-                      <Text style={s.link}>
-                        {units ? "Afficher en jetons" : "Afficher en BB"}
-                      </Text>
-                    </Pressable>
-                  </View>
-                  <View style={{ height: 500, marginHorizontal: -10 }}>
-                    <View
-                      style={[
-                        s.felt,
-                        {
-                          backgroundColor: felt,
-                          left: "12%",
-                          right: "12%",
-                          top: 48,
-                          bottom: 24,
-                        },
-                      ]}
-                    >
-                      <View style={s.feltInner} />
-                    </View>
-                    <View style={s.board}>
-                      <Text style={s.tag}>S T A C K O R A</Text>
-                      <Text style={s.pot}>
-                        POT{" "}
-                        {amount(
-                          h.stage === "done"
-                            ? h.pots.reduce((s, p) => s + p.amount, 0)
-                            : h.players.reduce((s, p) => s + (p.total ?? 0), 0),
-                        )}
-                      </Text>
-                      <View
-                        style={[
-                          s.row,
-                          {
-                            justifyContent: "center",
-                            flexWrap: "wrap",
-                            maxWidth: width * 0.58,
-                          },
-                        ]}
-                      >
-                        {Array.from({ length: Math.max(5, h.board.length) }, (_, i) => (
-                          i < visibleBoard && h.board[i] ?
-                            <DealtCard key={`${h.id}-${i}`} card={h.board[i]} index={i} small={h.board.length > 5} /> :
-                            <Card key={`${h.id}-back-${i}`} small={h.board.length > 5} />
-                        ))}
-                      </View>
-                      {g.variant === "ghost" && (
-                        <>
-                          <Text style={{ color: C.gold, fontSize: 12 }}>
-                            ◈ GHOST POT · {amount(h.ghostPot)}
-                          </Text>
-                          <View style={s.row}>
-                            {h.ghostCards.map((c, i) => (
-                              <Card key={i} card={c} small />
-                            ))}
-                          </View>
-                        </>
-                      )}
-                    </View>
-                    {h.players.map(seat)}
-                  </View>
-                  {h.stage === "done" ? (
-                    <View style={s.panel}>
-                      <Text style={[s.heading, { color: C.gold }]}>
-                        {h.pots.some((p) => p.winners.includes(a.user!.id))
-                          ? "Vous remportez un pot !"
-                          : "Main terminée"}
-                      </Text>
-                      {h.pots.map((p, i) => (
-                        <Text style={s.body} key={i}>
-                          {i === 0 ? "Pot principal" : `Pot ${i + 1}`} ·{" "}
-                          {amount(p.amount)} →{" "}
-                          {p.ghost
-                            ? "Ghost Pot"
-                            : p.winners
-                                .map(
-                                  (id) =>
-                                    h.players.find((p) => p.id === id)?.name,
-                                )
-                                .join(", ")}
-                        </Text>
-                      ))}
-                      {h.allIn && (
-                        <View style={{ gap: 8, paddingVertical: 12 }}>
-                          <Text style={[s.heading, { color: C.gold, fontSize: 17 }]}>ALL-IN · CARTES RÉVÉLÉES</Text>
-                          <Text style={s.caption}>Équité exacte · {streetName} · toutes les cartes possibles, égalités partagées.</Text>
-                          {displayedOdds.map((odd) => (
-                            <View key={odd.id} style={{ gap: 5 }}>
-                              <View style={[s.row, { justifyContent: "space-between" }]}>
-                                <Text style={s.body}>{odd.id === "__ghost__" ? "GHOST" : h.players.find((p) => p.id === odd.id)?.name}</Text>
-                                <Text style={{ color: C.gold, fontWeight: "800" }}>{odd.percent.toFixed(1)} %</Text>
-                              </View>
-                              <View style={{ backgroundColor: C.line, height: 7, borderRadius: 10, overflow: "hidden" }}>
-                                <View style={{ backgroundColor: C.gold, width: `${odd.percent}%`, height: "100%" }} />
-                              </View>
-                              {odd.outs.length > 0 && odd.percent < Math.max(...displayedOdds.map((other) => other.percent)) && (
-                                <Text style={s.caption}>
-                                  {streetEquity?.boardCount === 4 ? "Rivers gagnantes (ou partage du pot)" : "Cartes améliorant l’équité"} : {odd.outs.map((c) => `${c[0] === "T" ? "10" : c[0]}${({s:"♠",h:"♥",d:"♦",c:"♣"} as Record<string,string>)[c[1]]}`).join(" · ")}
-                                </Text>
-                              )}
-                            </View>
-                          ))}
-                        </View>
-                      )}
-                      {g.variant === "ghost" && h.ghostCards.length > 0 && (
-                        <Text style={[s.caption, { color: C.gold }]}>Ghost révélé : {h.ghostCards.join(" / ")} · showdown contre le Ghost même après un fold.</Text>
-                      )}
-                      {h.bonus.length > 0 && (
-                        <View style={{ gap: 6 }}>
-                          <Text style={[s.heading, { color: C.gold, fontSize: 16 }]}>PRIME 7/2 · MAIN RÉVÉLÉE</Text>
-                          {Array.from(new Set(h.bonus.map((b) => b.to))).map((id) => (
-                            <Text key={id} style={s.body}>
-                              {h.players.find((p) => p.id === id)?.name} : 7 / 2 dévoilé automatiquement
-                            </Text>
-                          ))}
-                        </View>
-                      )}
-                      {h.bonus.length > 0 && (
-                        <Text style={s.caption}>
-                          Prime 7/2 :{" "}
-                          {h.bonus.reduce((n, b) => n + b.amount, 0)} jetons
-                          transférés.
-                        </Text>
-                      )}
-                      <Text style={s.caption}>
-                        La prochaine main démarre après la fin des autres
-                        tables.
-                      </Text>
-                    </View>
-                  ) : legal ? (
-                    <View style={s.controls}>
-                      <View
-                        style={[s.row, { justifyContent: "space-between" }]}
-                      >
-                        <Text style={[s.heading, { fontSize: 18 }]}>
-                          À vous de jouer
-                        </Text>
-                        <Text style={{ color: C.gold }}>
-                          {Math.max(
-                            0,
-                            Math.ceil((table!.deadline - now) / 1000),
-                          )}{" "}
-                          s
-                        </Text>
-                      </View>
-                      <View style={s.row}>
-                        <View style={{ flex: 1 }}>
-                          <Button
-                            secondary
-                            title="Passer"
-                            disabled={a.busy}
-                            onPress={() => void a.play("fold")}
-                          />
-                        </View>
-                        <View style={{ flex: 1 }}>
-                          <Button
-                            title={
-                              legal.canCheck
-                                ? "Parole"
-                                : `Suivre ${amount(legal.call)}`
-                            }
-                            disabled={a.busy}
-                            onPress={() =>
-                              void a.play(legal.canCheck ? "check" : "call")
-                            }
-                          />
-                        </View>
-                      </View>
-                      {legal.canRaise && (
-                        <>
-                          <Field
-                            label={`Relancer à · min ${Math.min(legal.minTo, legal.maxTo)} / max ${legal.maxTo}`}
-                            numeric
-                            value={raise}
-                            onChange={setRaise}
-                          />
-                          <View style={s.row}>
-                            {[0.33, 0.5, 1].map((f) => (
-                              <Pressable
-                                key={f}
-                                style={s.chip}
-                                onPress={() =>
-                                  setRaise(
-                                    String(
-                                      Math.min(
-                                        legal.maxTo,
-                                        Math.max(
-                                          legal.minTo,
-                                          (me?.bet ?? 0) +
-                                            legal.call +
-                                            Math.floor(
-                                              (h.players.reduce(
-                                                (n, p) => n + (p.total ?? 0),
-                                                0,
-                                              ) +
-                                                legal.call) *
-                                                f,
-                                            ),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                }
-                              >
-                                <Text style={s.caption}>
-                                  {f === 1
-                                    ? "Pot"
-                                    : f === 0.5
-                                      ? "½ pot"
-                                      : "⅓ pot"}
-                                </Text>
-                              </Pressable>
-                            ))}
-                            <Pressable
-                              style={s.chip}
-                              onPress={() => setRaise(String(legal.maxTo))}
-                            >
-                              <Text style={{ color: C.gold, fontSize: 12 }}>
-                                All-in
-                              </Text>
-                            </Pressable>
-                          </View>
-                          <Button
-                            secondary
-                            title={`Relancer à ${raise}`}
-                            disabled={a.busy}
-                            onPress={() => void a.play("raise", Number(raise))}
-                          />
-                        </>
-                      )}
-                    </View>
-                  ) : (
-                    <Text style={[s.caption, { textAlign: "center" }]}>
-                      {own === -1
-                        ? "Vous êtes éliminé · suivez la fin du tournoi."
-                        : `${h.players.find((p) => p.id === h.turn)?.name ?? "La table"} réfléchit…`}
-                    </Text>
-                  )}
-                  <View style={s.panel}>
-                    <Label>DERNIÈRES ACTIONS</Label>
-                    {h.log.slice(-5).map((l, i) => (
-                      <Text key={i} style={s.caption}>
-                        {l}
-                      </Text>
-                    ))}
-                    {g.events.slice(-2).map((e, i) => (
-                      <Text key={"e" + i} style={s.caption}>
-                        {e.text}
-                      </Text>
-                    ))}
-                  </View>
-                </>
+                <PokerTable game={g} userId={a.user.id} busy={a.busy} units={units} felt={felt} toggleUnits={() => void prefs(!units, felt)} play={a.play} />
               ) : (
                 <Text style={s.body}>Préparation des tables…</Text>
               )}

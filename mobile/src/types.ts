@@ -14,6 +14,8 @@ export type Player = {
 };
 export type Hand = {
   id: number;
+  revealed?: string[];
+  presentation?: { startedAt: number; endsAt: number; nextAt: number | null; count: number; river: boolean } | null;
   players: Player[];
   board: string[];
   ghostCards: string[];
@@ -36,6 +38,7 @@ export type Hand = {
   } | null;
 };
 export type Game = {
+  serverNow?: number;
   id: string;
   code: string;
   owner: string;

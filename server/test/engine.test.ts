@@ -607,7 +607,7 @@ test("paid preflop all-in reveals called hands and equity once betting is closed
   const h = startHand(players(2, 100), 0, 20, 431, "classic", 0,
     rig([["As", "Ah"], ["Ks", "Kh"]], ["2c", "3c", "4d", "8d", "9s"]));
   act(h, "p0", { type: "raise", amount: 100 });
-  assert.equal(h.allIn, null);
+  assert.equal(Boolean(h.allIn), false);
   assert.deepEqual(publicHand(h, "p1").players[0].cards, []);
   act(h, "p1", { type: "call" });
   assert.equal(h.stage, "done");

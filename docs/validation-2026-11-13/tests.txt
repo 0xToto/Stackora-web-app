@@ -1,0 +1,63 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> stackora@0.1.0 test
+> npm test -w server
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> @stackora/server@0.1.0 test
+> node --import tsx --test test/*.test.ts
+
+✔ HTTP multiplayer: registration, private join, legal actions, persistence and logout (208.724266ms)
+✔ WebSocket authentication, hidden cards and reconnect resynchronization (40.824187ms)
+✔ shuffle: 52 distinct cards and random ordering (2.618266ms)
+✔ wheel, flush, full house, quads, straight flush and large boards (3.956898ms)
+✔ headsup button is SB, acts first preflop, second after flop (0.954054ms)
+✔ out of turn, impossible check, negative and undersized raise rejected (0.422495ms)
+✔ short all-in does not reopen a full raiser (1.707627ms)
+✔ cumulative short raises reopen action at a full raise threshold (0.440071ms)
+✔ uncalled bet is returned; side pots preserve chips (2605.006355ms)
+✔ privacy: own cards only; folded cards and deck never serialized (0.531139ms)
+✔ 72 BB walk has no bounty (0.299631ms)
+✔ 72 offensive victory charges one BB from every opponent (0.368764ms)
+✔ 72 showdown winner receives capped bounty with no negative stacks (0.283777ms)
+✔ ghost wins and accumulates carry across consecutive hands (0.81842ms)
+✔ ghost equality carries, human victory releases carry (0.353892ms)
+✔ ghost resolves even when all humans except one fold (0.22597ms)
+✔ red river opens extra rounds for reds, stops on black (0.975136ms)
+✔ all-in red river runs out without extra actions (2175.702513ms)
+✔ split pot including odd chip remains integer (0.464378ms)
+✔ table distributions match all specified examples (0.235344ms)
+✔ 16 to 14 balances 7+7; 9 to 8 merges; unsafe transfer rejected (1.473766ms)
+✔ actions are idempotent and reject stale versions (0.323907ms)
+✔ 1200 randomized complete hands across all variants conserve chips (364909.61605ms)
+✔ complete 9-player bot tournaments in every variant (37348.042847ms)
+✔ side pots and all-ins in every variant with deterministic tied board (10241.066859ms)
+✔ 72 all-in losers pay zero bounty and no chip debt (2245.918284ms)
+✔ odd chip goes clockwise from the button (0.337858ms)
+✔ transferred previous BB does not pay BB immediately after final-table merge (0.651399ms)
+✔ paid preflop all-in reveals called hands and equity once betting is closed (2152.6701ms)
+✔ fold against Ghost runs complete board and publicly exposes Ghost (0.268864ms)
+✔ seven-two bluff winner is exposed even without a showdown (0.213321ms)
+✔ rank evaluator agrees with canonical evaluator on 5, 6 and 7 cards (60.387265ms)
+✔ JJ vs KK preflop: full enumeration, not the rule of 2 (1952.739673ms)
+✔ turn: exact two winning jacks among 44 unseen cards (0.670703ms)
+✔ flop: draws to trips evaluated against full turn-river combinations (2.364365ms)
+✔ board royal flush splits equity exactly between two players (0.188133ms)
+✔ multiway equity sums to 100% including split pots (2.85356ms)
+✔ flush completes on river and updates exact winner to 100% (0.440251ms)
+✔ preflop runout: 2 seconds per card, five-second river, no future results or equity leak (2196.926311ms)
+✔ flop and turn all-ins only animate remaining cards (2.689733ms)
+✔ three players and side pots conserve chips throughout presentation (0.67178ms)
+✔ two clients and reconnect get the same clock and board; no client needed for expiry (1.01785ms)
+✔ 7/2 reveal on fold is independent of bounty qualification; only winner is public (0.222144ms)
+✔ 7/2 aggression earns unchanged bounty and synchronized revelation (0.235494ms)
+✔ ordinary fold winner and losing 7/2 stay private (0.2527ms)
+ℹ tests 45
+ℹ suites 0
+ℹ pass 45
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 422050.241035

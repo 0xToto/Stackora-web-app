@@ -1,6 +1,7 @@
 import { randomUUID, randomInt } from "node:crypto";
 import {
   act,
+  schedulePresentation,
   startHand,
   publicHand,
   assertConservation,
@@ -202,6 +203,7 @@ function beginRound(t: Tournament, now: number) {
       t.variant,
       tb.ghostPot,
     );
+    schedulePresentation(tb.hand, now);
     tb.ghostPot = 0;
     tb.deadline = now + t.decisionSeconds * 1000;
   }
@@ -229,7 +231,9 @@ export function action(
     throw Error("État modifié : synchronisation nécessaire.");
   const tb = t.tables.find((tb) => tb.players.includes(id));
   if (!tb?.hand) throw Error("Table introuvable.");
+  const computeStarted = Date.now();
   act(tb.hand, id, a);
+  schedulePresentation(tb.hand, now + Date.now() - computeStarted);
   tb.deadline = now + t.decisionSeconds * 1000;
   t.seen.push(key);
   if (t.seen.length > 2000) t.seen.shift();
@@ -240,6 +244,14 @@ export function tick(t: Tournament, now = Date.now()): boolean {
   let changed = false;
   for (const tb of t.tables) {
     const h = tb.hand!;
+    schedulePresentation(h, now);
+    if (h.presentation?.startedAt) {
+      const count = h.presentation.revealAt.filter(at => at <= now).length;
+      if (count !== h.presentation.publishedCount) {
+        h.presentation.publishedCount = count;
+        changed = true;
+      }
+    }
     if (h.stage === "done") continue;
     const p = h.players.find((p) => p.id === h.turn)!;
     if (
@@ -266,14 +278,16 @@ export function tick(t: Tournament, now = Date.now()): boolean {
             amount: Math.min(p.bet + p.stack, h.currentBet + h.minRaise),
           };
       }
+      const computeStarted = Date.now();
       act(h, p.id, a);
+      schedulePresentation(h, now + Date.now() - computeStarted);
       tb.deadline = now + t.decisionSeconds * 1000;
       changed = true;
     }
   }
   if (t.tables.every((tb) => tb.hand!.stage === "done")) {
     if (!t.roundReadyAt) {
-      t.roundReadyAt = now + 8500;
+      t.roundReadyAt = Math.max(now, ...t.tables.map(tb => tb.hand?.presentation?.endsAt ?? now)) + 8500;
       changed = true;
     } else if (now >= t.roundReadyAt) {
       const previous = new Map(t.players.map((p) => [p.id, p.stack]));
@@ -351,14 +365,15 @@ export function assertTournament(t: Tournament) {
   if (total !== t.players.length * t.startingStack)
     throw Error("Tournament conservation failure");
 }
-export function view(t: Tournament, id: string) {
+export function view(t: Tournament, id: string, now = Date.now()) {
   if (!t.players.some((p) => p.id === id)) throw Error("Accès interdit.");
   return {
     ...t,
     seen: undefined,
+    serverNow: now,
     tables: t.tables.map((tb) => ({
       ...tb,
-      hand: tb.hand ? publicHand(tb.hand, id) : null,
+      hand: tb.hand ? publicHand(tb.hand, id, now) : null,
     })),
     results: [...t.results].sort((a, b) => a.rank - b.rank),
   };
