@@ -1,0 +1,13 @@
+
+> stackora@0.1.0 typecheck
+> npm run typecheck --workspaces
+
+
+> @stackora/server@0.1.0 typecheck
+> tsc --noEmit
+
+
+> @stackora/mobile@0.1.0 typecheck
+> tsc --noEmit
+
+EXIT 0

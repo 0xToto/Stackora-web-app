@@ -1,62 +1,32 @@
-# État réel de la livraison · 12 novembre 2026
+# État réel de la livraison · 14 novembre 2026 (0.2.1)
 
-## Implémenté
+## Implémenté et vérifié dans cet environnement
 
-| Domaine | Livré |
+| Domaine | Livré | Vérification |
+|---|---|---|
+| Moteur, tournois, variantes 7/2 · Ghost · Red River | Inchangés fonctionnellement depuis la 0.1 | Suite de tests serveur existante (45) |
+| Design system et refonte de tous les écrans | `mobile/src/theme.ts`, `ui.tsx`, `screens/*` | Typecheck strict, export web, parcours Chrome 393×852 et 375×667 (captures dans `docs/screenshots`) |
+| Table de poker 2–8 joueurs | `mobile/src/poker/*` | Parcours réel : 8 joueurs, mise, préactions, historique ; duel à tapis jusqu'au résultat |
+| Règles (10 chapitres, mains, comparateur, 4 variantes) | `screens/rules.tsx`, `data/rules.ts` | Parcours Chrome |
+| Exercices (positions 6/8-max, 21 décisions pédagogiques) | `screens/training.tsx`, `data/gto.ts` | Parcours Chrome |
+| Paramètres persistés + synchronisés | `settings.tsx`, `/me/prefs` | Test API + parcours |
+| Économie StackCoins, boutique, inventaire, missions, récompenses | `server/src/economy.ts`, `catalog.ts` | 8 tests dédiés (`server/test/economy.test.ts`) + achat réel dans le parcours |
+| Paiement web Stripe Checkout (création, confirmation serveur, webhook signé, remboursement) | `server/src/stripe.ts`, migration 003 | 2 tests (faux serveur Stripe) + parcours navigateur complet avec un faux Stripe local : 500 → 2 000 StackCoins |
+| Solutions GTO calculées (9 push/fold Nash, 10 postflop solveur) + tableau Nash | `mobile/src/data/gto-solved.ts`, `tools/gto-lab` | Validateur de format (0 erreur), comparaison à un tableau Nash public, exploitabilité affichée |
+| Vérification IAP App Store (JWS x5c + ES256, remboursements) | `server/src/iap.ts` | Test avec une PKI générée (racine → intermédiaire → feuille), signature falsifiée refusée |
+
+## Implémenté mais non vérifié sur iPhone réel
+
+Haptique (`expo-haptics`), sons (`expo-audio`), dégradés natifs, polices natives, safe areas réelles, VoiceOver. Aucun build Xcode/EAS n'a pu être produit ici (Linux, pas de compte Apple).
+
+## Non réalisé / à activer
+
+| Fonction | Reste à faire |
 |---|---|
-| Compte | Inscription email, pseudo unique, login, token persistant, logout |
-| Tournois | Création, configuration de base, code partageable, rejoindre, lobby, lancement hôte |
-| Mains | Hold'em No Limit, évaluateur, fold/check/call/raise/all-in, side pots, splits |
-| Tables | 8-max, 2–32 participants, répartition équilibrée, transferts entre rounds, table finale |
-| Résultats | Éliminations, classement final persistant, départage déterministe |
-| Temps réel | WebSocket, projection privée, reconnect, heartbeat, polling de secours |
-| Fiabilité | Autorité serveur, version, idempotence, sauvegarde transactionnelle, invariants |
-| Variantes | 7/2, Ghost et Red River, règles maison documentées et tests |
-| Solo | Bots serveur, ajout au lobby, tournois complets |
-| Présentation | Palette émeraude/or, table 8 sièges, cartes, pot, timer, journal, logos/icônes |
-| Personnalisation | 4 tapis gratuits persistés localement, jetons / BB |
-| iOS | Projet Expo SDK 55, development client, EAS profiles, guide d'installation |
-
-## Tests et niveau de preuve
-
-- 28 tests automatisés Node du moteur, du tournoi, de REST, de WebSocket et de la persistance passent.
-- Parmi eux : 1 200 mains simulées (300 par variante), tournois à 9 bots terminés dans les 4 variantes, 9 → 8 et 16 → 14, side pots et égalités dans les 4 variantes, protection double BB après transfert, uncalled bet, relances incomplètes et cumulées, confidentialité, redémarrage, idempotence, reconnexion réelle WebSocket.
-- TypeScript strict : serveur et mobile vérifiés.
-- Export du bundle iOS via Metro réussi ; ce n'est ni un build Xcode ni une installation physique.
-- Contrôle des dépendances Expo hors ligne réussi après alignement de React Native à 0.83.10.
-- Les jeux de cartes de simulation sont mélangés avec le générateur de production ; les tests de scénarios utilisent des decks déterministes.
-- Les tests passent sur un serveur local, pas sur une infrastructure publique ni sous charge massive.
-- Docker, EAS distant, OAuth, StoreKit et notifications Apple ne sont pas validés ici.
-
-Le script `scripts/smoke-web.cjs` permet un test supplémentaire du même client dans Chromium à 393 × 852 : inscription, création, 8 bots, tables de 5+4 et action. Il nécessite Playwright et son navigateur, le backend et un export web servi sur le port 8081. Il n'est pas un test natif iOS.
-
-## Non réalisé
-
-| Fonction | Travail restant |
-|---|---|
-| Apple / Google / Facebook | Credentials, SDK, vérification serveur, liaison de comptes |
-| Email | Envoi, vérification, reset mot de passe, suppression du compte |
-| Social | Amis, demandes, présence globale, invitations persistantes, push, deep links d'invitation |
-| Paramètres avancés | Dates, minimum, mot de passe, structure manuelle, antes, pauses, time bank, late reg, réentrées, add-ons, prix informatif |
-| Économie | Wallet SC, ledger, attribution idempotente, anti-farming, boutique, achats de cosmétiques |
-| Apple IAP | StoreKit, validation JWS/transactions, notifications serveur, remboursements, sandbox |
-| Progression | XP, badges, succès, statistiques VPIP/PFR/showdown, historique consultable |
-| Visuels | Skins de cartes, avatars photo, sons, haptique, animations Reanimated, shots, thème clair |
-| Scalabilité | PostgreSQL, Prisma, Redis, outbox, déploiement et supervision |
-| Assurance qualité | iPhone réel, VoiceOver complet, tailles/rotations, tests de charge, revue poker indépendante |
-| Publication | Disponibilité du nom, confidentialité/conditions, App Store Connect, signature et TestFlight |
-
-Ces fonctions ne sont pas présentées par des boutons factices. Les profils EAS ne signifient pas que le binaire est déjà compilé ou approuvé.
-
-## Suite conseillée
-
-1. Installer le development build et valider un vrai tournoi sur deux iPhones.
-2. Faire relire les règles maison, notamment Ghost Pot et transferts de blinds, puis améliorer l'ergonomie native à partir des essais.
-3. Ajouter la gestion des comptes complète et l'hébergement PostgreSQL autoritaire avant les invitations publiques.
-4. Ajouter les paramètres de tournoi et les fonctions sociales.
-5. Implémenter le ledger SC, la progression et les cosmétiques, puis StoreKit sandbox.
-6. Valider les fonctionnalités natives, effectuer les tests de charge et préparer TestFlight.
-
-## Contrôle visuel
-
-Le bundle web a été exporté, mais le parcours Chromium automatisé n’a pas pu s’exécuter : le navigateur est bloqué au lancement par les restrictions de sockets de cet environnement. Aucun test visuel ni E2E graphique n’est donc déclaré réussi. Le script est livré pour exécution locale.
+| Achat de StackCoins sur le web | Créer un compte Stripe et fournir `STRIPE_SECRET_KEY` (voir `docs/PAIEMENT_WEB.md`). Non testé contre le vrai Stripe : son API est inaccessible depuis l'environnement de développement |
+| Achat de StackCoins sur iPhone | Module StoreKit côté client + produits App Store Connect + variables `APPLE_*` (serveur prêt) |
+| Notifications push | APNs ; les préférences et le centre in-app existent |
+| Thème clair | Non disponible (indiqué dans Paramètres) |
+| GTO multijoueur préflop (RFI, 3-bet…) | Non résolu (outils tête-à-tête uniquement) : 10 « Fondamentaux » sans fréquences |
+| OAuth, social, email vérifié | Inchangé depuis la 0.1 |
+| Scalabilité (PostgreSQL, Redis) | Inchangé depuis la 0.1 |

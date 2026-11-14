@@ -1,0 +1,18 @@
+Expo Autolinking module resolution enabled
+Starting Metro Bundler
+
+Static rendering is enabled. Learn more: https://docs.expo.dev/router/web/static-rendering/
+Web node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ Bundled 1588ms node_modules/@expo/cli/node_modules/@expo/router-server/node/render.js (946 modules)
+Web Bundled 1825ms node_modules/expo-router/entry.js (724 modules)
+
+› web bundles (1):
+_expo/static/js/web/entry-172ff78270a6b93d94da1d24a6b2d69c.js (1.9MB)
+
+› Static routes (3):
+/ (index) (35KB)
+/_sitemap (29KB)
+/+not-found (29KB)
+
+Exported: dist
+EXIT 0

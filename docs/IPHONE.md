@@ -6,6 +6,12 @@ Les sources natives Expo, l'icône, le splash et les profils EAS sont fournis. A
 
 La méthode ci-dessous fonctionne depuis Windows, macOS ou Linux via le service EAS. L'installation ad hoc sur appareil avec EAS requiert un compte Apple Developer actif et l'enregistrement de l'iPhone. Consulter les sources officielles en bas de page pour les étapes de signature.
 
+## 0. Important pour la version 0.2
+
+La 0.2 ajoute des modules natifs (`expo-haptics`, `expo-audio`, `expo-linear-gradient`, `expo-font`). **Un development build compilé avec la 0.1 ne les contient pas** : recompilez le build de développement (étape 2) avant de lancer Metro, sinon l'application affichera une erreur de module natif manquant.
+
+Le serveur applique automatiquement la migration `002_economy.sql` au démarrage : les comptes existants sont conservés et reçoivent leur portefeuille (bonus de bienvenue unique) à leur prochaine connexion.
+
 ## 1. Préparer le projet
 
 À la racine du dossier extrait :
@@ -61,6 +67,10 @@ Le QR code Metro ouvre le code de l'application ; il n'héberge pas le backend. 
 - Tester 9 joueurs (5 + 4), puis attendre la fusion à 8 joueurs.
 - Refaire une partie dans chacune des variantes ; les scénarios précis sont aussi automatisés dans `server/test`.
 - Essayer chaque tapis et le changement jetons / BB.
+- Boutique : acheter un dos de cartes avec le bonus de bienvenue, l'équiper, vérifier qu'il apparaît sur vos cartes fermées vu depuis le second iPhone.
+- Paramètres : changer un réglage, se déconnecter, se reconnecter sur l'autre appareil : le réglage doit suivre le compte.
+- Vibrations : vérifier les retours haptiques (non testables sur le web).
+- Exercices : terminer une session de 10 questions et vérifier la récompense dans Notifications.
 
 ## Autres modes
 

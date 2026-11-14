@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { storage as SecureStore } from "./storage";
-import type { User, Game, Summary } from "./types";
+import type { User, Game, Summary, Profile, Catalog, Mission, Slot, Progress } from "./types";
 export function useStackora() {
   const [url, setUrl] = useState(
     process.env.EXPO_PUBLIC_API_URL ?? (typeof window !== "undefined" ? window.location.origin : "http://192.168.1.20:3001"),
@@ -13,6 +13,10 @@ export function useStackora() {
   const [busy, setBusy] = useState(false);
   const [online, setOnline] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [catalog, setCatalog] = useState<Catalog | null>(null);
+  const [missions, setMissions] = useState<Mission[]>([]);
+  const [balance, setBalance] = useState<number | null>(null);
   const socket = useRef<WebSocket | null>(null);
   useEffect(() => {
     SecureStore.getItemAsync("stackora-session")
@@ -74,9 +78,35 @@ export function useStackora() {
     async () => setList(await api("/tournaments")),
     [api],
   );
+  const loadProfile = useCallback(async () => {
+    const p: Profile = await api("/me/profile");
+    setProfile(p);
+    setBalance(p.wallet.balance);
+    return p;
+  }, [api]);
+  const loadCatalog = useCallback(async () => {
+    const c: Catalog = await api("/shop/catalog");
+    setCatalog(c);
+    setBalance(c.balance);
+    return c;
+  }, [api]);
+  const loadMissions = useCallback(async () => setMissions(await api("/missions")), [api]);
   useEffect(() => {
-    if (token) void refresh().catch((e) => setError(e.message));
-  }, [token, refresh]);
+    if (!token) return;
+    void refresh().catch((e) => setError(e.message));
+    void loadProfile().catch(() => {});
+    void loadCatalog().catch(() => {});
+    void loadMissions().catch(() => {});
+  }, [token, refresh, loadProfile, loadCatalog, loadMissions]);
+  // Après un tournoi terminé, les récompenses serveur changent le solde et les missions.
+  const finishedSeen = useRef<string | null>(null);
+  useEffect(() => {
+    if (game?.status === "finished" && finishedSeen.current !== game.id) {
+      finishedSeen.current = game.id;
+      void loadProfile().catch(() => {});
+      void loadMissions().catch(() => {});
+    }
+  }, [game?.status, game?.id, loadProfile, loadMissions]);
   useEffect(() => {
     if (!token || !game?.id) return;
     let stopped = false;
@@ -143,6 +173,10 @@ export function useStackora() {
         setUser(null);
         setGame(null);
         setList([]);
+        setProfile(null);
+        setCatalog(null);
+        setMissions([]);
+        setBalance(null);
       }
     });
   }
@@ -168,7 +202,83 @@ export function useStackora() {
       }
     });
   }
+  async function buy(itemId: string) {
+    const r = await api("/shop/purchase", { itemId, idempotencyKey: `${itemId}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}` });
+    setBalance(r.balance);
+    setCatalog((c) => (c ? { ...c, balance: r.balance, owned: r.owned } : c));
+    void loadProfile().catch(() => {});
+    return r as { duplicate: boolean; balance: number };
+  }
+  async function equip(slot: Slot, itemId: string) {
+    const r = await api("/shop/equip", { slot, itemId });
+    setCatalog((c) => (c ? { ...c, equipped: r.equipped } : c));
+    setProfile((p) => (p ? { ...p, equipped: r.equipped } : p));
+    return r.equipped as Record<Slot, string>;
+  }
+  async function claimMission(id: string) {
+    const r = await api("/missions/claim", { id });
+    setBalance(r.balance);
+    await loadMissions();
+    void loadProfile().catch(() => {});
+    return r as { coins: number; xp: number; capped: boolean };
+  }
+  async function submitTraining(s: { sessionId: string; module: "positions" | "gto"; category: string; correct: number; total: number }) {
+    const r = await api("/training/sessions", s);
+    setBalance(r.balance);
+    void loadMissions().catch(() => {});
+    void loadProfile().catch(() => {});
+    return r as { coins: number; xp: number; reason?: string; progress: Progress };
+  }
+  async function rename(name: string) {
+    const u = await api("/me", { name }, "PATCH");
+    setUser(u);
+    await SecureStore.setItemAsync("stackora-session", JSON.stringify({ token, user: u, url }));
+    void loadProfile().catch(() => {});
+  }
+  async function deleteAccount(password: string) {
+    await api("/me/delete", { password });
+    await SecureStore.deleteItemAsync("stackora-session");
+    setToken("");
+    setUser(null);
+    setGame(null);
+    setList([]);
+    setProfile(null);
+  }
+  /** Paiement web : le serveur crée la session Stripe, le navigateur y est redirigé. */
+  async function checkout(productId: string) {
+    const r = await api("/pay/stripe/checkout", { productId });
+    return r as { id: string; url: string; test: boolean };
+  }
+  /** Au retour de Stripe : le serveur relit la session chez Stripe avant de créditer. */
+  const confirmPayment = useCallback(
+    async (sessionId: string) => {
+      const r = await api("/pay/stripe/confirm", { sessionId });
+      if (typeof r.balance === "number") setBalance(r.balance);
+      return r as { status: "paid" | "pending"; coins?: number; duplicate?: boolean; balance: number };
+    },
+    [api],
+  );
+  const savePrefs = useCallback(async (prefs: Record<string, unknown>) => api("/me/prefs", prefs, "PUT"), [api]);
+  const fetchPrefs = useCallback(async () => api("/me/prefs") as Promise<{ prefs: Record<string, unknown> | null; updated: number }>, [api]);
   return {
+    token,
+    profile,
+    catalog,
+    missions,
+    balance,
+    loadProfile,
+    loadCatalog,
+    loadMissions,
+    buy,
+    equip,
+    claimMission,
+    submitTraining,
+    rename,
+    deleteAccount,
+    savePrefs,
+    fetchPrefs,
+    checkout,
+    confirmPayment,
     url,
     setUrl,
     user,

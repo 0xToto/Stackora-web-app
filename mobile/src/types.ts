@@ -62,7 +62,38 @@ export type Game = {
   }[];
   results: { id: string; name: string; rank: number }[];
   events: { at: number; text: string }[];
+  /** Cosmétiques publics équipés, fournis par le serveur (jamais par un client). */
+  cosmetics?: Record<string, PublicLook>;
 };
+export type Slot = "table" | "cardBack" | "cardFace" | "chips" | "avatar" | "frame" | "badge" | "winFx" | "showdownFx";
+export type Rarity = "common" | "rare" | "epic" | "legendary";
+export type PublicLook = { avatar: string; frame: string; badge: string; cardBack: string; winFx: string; showdownFx: string; level: number };
+export type Item = {
+  id: string;
+  slot: Slot;
+  name: string;
+  description: string;
+  rarity: Rarity;
+  price: number;
+  visibility: "public" | "local";
+  collection: string;
+  free?: boolean;
+  look: Record<string, string | number | boolean>;
+};
+export type Pack = { productId: string; name: string; coins: number; displayPrice: string; priceCents: number; currency: string };
+export type Catalog = { items: Item[]; packs: Pack[]; iapEnabled: boolean; webPayments?: { enabled: boolean; test: boolean }; balance: number; owned: string[]; equipped: Record<Slot, string> };
+export type Progress = { level: number; xp: number; current: number; next: number };
+export type Profile = {
+  user: User;
+  wallet: { balance: number };
+  progress: Progress;
+  equipped: Record<Slot, string>;
+  owned: string[];
+  stats: { played: number; wins: number; top3: number; bestRank: number | null; active: number };
+  history: { id: string; name: string; variant: Variant; rank: number; players: number; at: number }[];
+  training: { module: string; category: string; sessions: number; correct: number; total: number }[];
+};
+export type Mission = { id: string; period: "daily" | "weekly"; label: string; target: number; progress: number; coins: number; xp: number; claimed: boolean; resetsAt: number };
 export type Summary = Pick<
   Game,
   "id" | "name" | "code" | "status" | "variant"

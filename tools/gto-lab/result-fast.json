@@ -1,0 +1,331 @@
+[
+  {
+    "actions": [
+      {
+        "amount": null,
+        "kind": "check"
+      },
+      {
+        "amount": 6.0,
+        "kind": "bet"
+      },
+      {
+        "amount": 14.0,
+        "kind": "bet"
+      },
+      {
+        "amount": 30.0,
+        "kind": "bet"
+      }
+    ],
+    "board": [
+      "Kd",
+      "9c",
+      "5s",
+      "2h",
+      "Jc"
+    ],
+    "buckets": null,
+    "exploitability": 0.013359343725815098,
+    "exploitability_pct_pot": 0.06679671862907549,
+    "hero": "KcJd",
+    "hero_ev": 10.854671944869345,
+    "hero_freq": [
+      2.2200017271613405e-10,
+      0.009694069387184848,
+      0.7924359140314557,
+      0.19787001635935922
+    ],
+    "id": "po-value-river",
+    "ip_range": "KQs,KQo,KJs,KJo,KTs,KTo,AJs,AJo,ATs,ATo,A9s,QTs,JTs,T9s,98s,87s,76s,88,TT,JJ,QQ,A4s,A3s",
+    "iterations": 1500,
+    "max_raises": 1,
+    "oop_range": "K2s,K3s,K4s,K5s,K6s,K7s,K8s,K5o,K6o,K7o,K8o,A9s,A9o,Q9s,J9s,T9s,98s,97s,87s,76s,65s,QTs,QJs,JTs,JTo,Q9o,T9o,98o,22,55,66,77,88,99,A5s",
+    "path": [
+      "check"
+    ],
+    "player": "ip",
+    "pot": 20.0,
+    "range_freq": [
+      0.5219505515951707,
+      0.006945012577006329,
+      0.4255246774856061,
+      0.04557975834221731
+    ],
+    "seconds": 0.274030843,
+    "sizes": [
+      0.3,
+      0.7,
+      1.5
+    ],
+    "stack": 80.0
+  },
+  {
+    "actions": [
+      {
+        "amount": null,
+        "kind": "check"
+      },
+      {
+        "amount": 11.2,
+        "kind": "bet"
+      }
+    ],
+    "board": [
+      "As",
+      "8s",
+      "3d",
+      "Th",
+      "2c"
+    ],
+    "buckets": null,
+    "exploitability": 0.006728113407964864,
+    "exploitability_pct_pot": 0.0420507087997804,
+    "hero": "QsJs",
+    "hero_ev": -8.000785140249167,
+    "hero_freq": [
+      0.9882807860010483,
+      0.011719213998951676
+    ],
+    "id": "po-bluff-missed-flush",
+    "ip_range": "AKs,AKo,AQs,AQo,AJs,AJo,KQs,KJs,QJs,JTs,T9s,97s,76s,KQo,QJo,KTs,65s,54s",
+    "iterations": 1500,
+    "max_raises": 1,
+    "oop_range": "A2s,A3s,A4s,A5s,A6s,A7s,A8s,A9s,A2o,A3o,A4o,A5o,A6o,A7o,A8o,A9o,88,33,22,77,99,98s,87s,86s,T9s,JTs,QTs,K8s,97s,76s",
+    "path": [
+      "check"
+    ],
+    "player": "ip",
+    "pot": 16.0,
+    "range_freq": [
+      0.714449330295966,
+      0.2855506697040342
+    ],
+    "seconds": 0.107720828,
+    "sizes": [
+      0.7
+    ],
+    "stack": 85.0
+  },
+  {
+    "actions": [
+      {
+        "amount": null,
+        "kind": "fold"
+      },
+      {
+        "amount": null,
+        "kind": "call"
+      },
+      {
+        "amount": 24.0,
+        "kind": "raise"
+      },
+      {
+        "amount": 48.0,
+        "kind": "raise"
+      }
+    ],
+    "board": [
+      "Ac",
+      "9d",
+      "5s",
+      "7c",
+      "3h"
+    ],
+    "buckets": null,
+    "exploitability": 0.015780207003304902,
+    "exploitability_pct_pot": 0.06575086251377042,
+    "hero": "AhTd",
+    "hero_ev": -13.06103954675879,
+    "hero_freq": [
+      0.5052858219005382,
+      0.4607090308581102,
+      0.011875423036845509,
+      0.02212972420450599
+    ],
+    "id": "po-bluffcatch",
+    "ip_range": "AKs,AKo,AQs,AQo,AJs,KQs,KJs,QJs,JTs,T8s,86s,64s,KTs,99,77,55,T9s",
+    "iterations": 1500,
+    "max_raises": 1,
+    "oop_range": "A2s,A3s,A4s,A5s,A6s,A7s,A8s,A9s,ATs,AJs,A2o,A3o,A4o,A5o,A6o,A7o,A8o,A9o,ATo,AJo,98s,97s,87s,76s,65s,T9s,K9s,Q9s,J9s,86s,64s,99,77,55,33",
+    "path": [
+      "check",
+      "bet:0"
+    ],
+    "player": "oop",
+    "pot": 24.0,
+    "range_freq": [
+      0.28453274339244067,
+      0.6170900899911254,
+      0.04014609171062873,
+      0.05823107490580496
+    ],
+    "seconds": 0.144375326,
+    "sizes": [
+      0.5,
+      1.0
+    ],
+    "stack": 70.0
+  },
+  {
+    "actions": [
+      {
+        "amount": null,
+        "kind": "fold"
+      },
+      {
+        "amount": null,
+        "kind": "call"
+      },
+      {
+        "amount": 29.994,
+        "kind": "raise"
+      }
+    ],
+    "board": [
+      "Qd",
+      "9c",
+      "4s",
+      "2d",
+      "Kc"
+    ],
+    "buckets": null,
+    "exploitability": 0.011670736636340662,
+    "exploitability_pct_pot": 0.06483742575744812,
+    "hero": "9h8h",
+    "hero_ev": -9.005868011404011,
+    "hero_freq": [
+      0.9983630294741311,
+      0.0010075602000336086,
+      0.0006294103258351998
+    ],
+    "id": "po-river-overbet",
+    "ip_range": "AKs,AKo,KQs,KQo,KJs,AQs,AQo,QJs,QQ,99,44,22,JTs,T8s,87s,A5s,A3s,T7s,65s",
+    "iterations": 1500,
+    "max_raises": 1,
+    "oop_range": "98s,97s,T9s,J9s,A9s,K9s,Q9s,QTs,QJs,A4s,54s,T8s,JTs,87s,J9o,T9o,A9o,22,44,99,A2s,K2s",
+    "path": [
+      "check",
+      "bet:1"
+    ],
+    "player": "oop",
+    "pot": 18.0,
+    "range_freq": [
+      0.6574591111803838,
+      0.27190200155651567,
+      0.07063888726310039
+    ],
+    "seconds": 0.109284144,
+    "sizes": [
+      0.66,
+      1.667
+    ],
+    "stack": 60.0
+  },
+  {
+    "actions": [
+      {
+        "amount": null,
+        "kind": "check"
+      },
+      {
+        "amount": 5.94,
+        "kind": "bet"
+      }
+    ],
+    "board": [
+      "Ks",
+      "Tc",
+      "4d",
+      "2h"
+    ],
+    "buckets": null,
+    "exploitability": 0.023164066446144438,
+    "exploitability_pct_pot": 0.25737851606827156,
+    "hero": "QhJh",
+    "hero_ev": -0.6034374254847437,
+    "hero_freq": [
+      0.5470201453906588,
+      0.4529798546093412
+    ],
+    "id": "po-turn-barrel",
+    "ip_range": "AKs,AKo,AQs,AQo,AJs,AJo,ATs,KQs,KQo,KJs,KJo,QJs,QTs,JTs,J9s,T9s,98s,A5s,A3s,AA,KK,QQ,JJ,44,65s,76s",
+    "iterations": 800,
+    "max_raises": 1,
+    "oop_range": "K2s,K3s,K4s,K5s,K6s,K7s,K8s,K9s,K5o,K6o,K7o,K8o,K9o,T2s,T3s,T4s,T5s,T6s,T7s,T8s,T9s,QTs,J9s,98s,97s,87s,65s,A4s,A2s,A5s,44,22,55,66,77,88,99,JTs,QJs,QJo,J9o,T9o,QTo,ATo,ATs,A9o",
+    "path": [
+      "check"
+    ],
+    "player": "ip",
+    "pot": 9.0,
+    "range_freq": [
+      0.4269249040064278,
+      0.5730750959935722
+    ],
+    "seconds": 6.387550257,
+    "sizes": [
+      0.66
+    ],
+    "stack": 95.0
+  },
+  {
+    "actions": [
+      {
+        "amount": null,
+        "kind": "fold"
+      },
+      {
+        "amount": null,
+        "kind": "call"
+      },
+      {
+        "amount": 14.4,
+        "kind": "raise"
+      },
+      {
+        "amount": 17.0,
+        "kind": "raise"
+      }
+    ],
+    "board": [
+      "Kh",
+      "8c",
+      "3d"
+    ],
+    "buckets": null,
+    "exploitability": 0.05354119701179183,
+    "exploitability_pct_pot": 0.26770598505895915,
+    "hero": "AsKd",
+    "hero_ev": 22.42782916539124,
+    "hero_freq": [
+      0.00010425273314981674,
+      0.01604432250109906,
+      0.4215903379772369,
+      0.5622610867885143
+    ],
+    "id": "po-spr-low",
+    "ip_range": "77,88,99,TT,JJ,ATs,AJs,AQs,KJs,KQs,QJs,JTs,T9s,AJo,AQo,KQo",
+    "iterations": 600,
+    "max_raises": 1,
+    "oop_range": "TT,JJ,QQ,KK,AA,AJs,AQs,AKs,KQs,AQo,AKo,A5s,A4s",
+    "path": [
+      "check",
+      "bet:0"
+    ],
+    "player": "oop",
+    "pot": 20.0,
+    "range_freq": [
+      0.21599776352316716,
+      0.16737388056932165,
+      0.2777992148856787,
+      0.33882914102183254
+    ],
+    "seconds": 370.474304059,
+    "sizes": [
+      0.4,
+      1.25
+    ],
+    "stack": 25.0
+  }
+]

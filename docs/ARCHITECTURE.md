@@ -26,11 +26,16 @@ Le serveur Node mono-processus traite les mutations synchrones sans `await` à l
 
 Les cartes privées sont présentes uniquement dans l'agrégat serveur et l'audit local. Le fichier de base et ses sauvegardes doivent rester privés. Aucun endpoint de lecture de l'audit n'est exposé. La liste des parties ne retourne que celles auxquelles l'utilisateur est inscrit. La souscription WebSocket contrôle aussi cette appartenance.
 
-Le schéma n'est pas une prétendue réalisation de toutes les entités du cahier des charges : les éléments nécessaires au premier parcours sont regroupés dans l'agrégat. Aucune transaction de monnaie cosmétique n'existe encore.
+Le schéma n'est pas une prétendue réalisation de toutes les entités du cahier des charges : les éléments nécessaires au premier parcours sont regroupés dans l'agrégat.
+
+Depuis la 0.2 (`002_economy.sql`) : `wallets`, `ledger` (append-only, `UNIQUE(user_id, idem)`), `inventory`, `equipped`, `progress`, `reward_claims`, `prefs`, `training`, `iap_transactions`. Domaines serveur : `catalog.ts` (catalogue et configuration des récompenses), `economy.ts` (transactions atomiques, récompenses, missions, inventaire, projection publique), `iap.ts` (vérification JWS StoreKit 2). Les StackCoins ne participent jamais à l'invariant des jetons. Voir `docs/STACKORA_V2.md`.
 
 ## Protocole
 
 - REST : `POST /auth/register`, `/auth/login`, `/auth/logout`; `GET /me`.
+- Compte (0.2) : `GET /me/profile`, `PATCH /me {name}`, `POST /me/delete {password}`, `GET|PUT /me/prefs`.
+- Économie (0.2) : `GET /shop/catalog`, `GET /wallet`, `POST /shop/purchase {itemId, idempotencyKey}`, `POST /shop/equip {slot, itemId}`, `GET /missions`, `POST /missions/claim {id}`, `POST /training/sessions`, `POST /iap/apple/verify {signedTransaction}`, `POST /iap/apple/notifications {signedPayload}`.
+- L'état de tournoi contient `cosmetics` : équipements publics par joueur, calculés par le serveur.
 - `POST /tournaments`, `GET /tournaments`, `POST /join {code}`.
 - `GET /tournaments/:id` ; `POST .../bots {count}`, `.../start {}`, `.../action`.
 - Action : `{actionId, version, type: "fold"|"check"|"call"|"raise", amount?}`.
@@ -53,4 +58,4 @@ Pour évoluer : PostgreSQL avec contrôle optimiste `UPDATE ... WHERE version = 
 
 TLS, reverse proxy avec rate limits partagés, secrets via environnement, email vérifié et récupération, suppression de compte, session renouvelable/révoquée par appareil, journal d'authentification, protection des sauvegardes, tests de charge et de chaos, revue du moteur indépendante. Retirer `NSAllowsArbitraryLoads` avant une distribution publique. Le HTTP local présent sert uniquement au développement.
 
-L'économie cosmétique, OAuth, notifications et StoreKit doivent être ajoutés comme domaines séparés. Les Stack Coins ne doivent jamais entrer dans l'invariant des jetons du tournoi.
+OAuth, notifications push et le module StoreKit côté application restent à ajouter. Les StackCoins ne doivent jamais entrer dans l'invariant des jetons du tournoi.

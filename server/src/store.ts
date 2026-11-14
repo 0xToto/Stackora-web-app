@@ -8,16 +8,17 @@ import {
   createHash,
 } from "node:crypto";
 import type { Tournament } from "./tournament.js";
+import { Economy } from "./economy.js";
+const MIGRATIONS = ["001_initial.sql", "002_economy.sql", "003_payments.sql"];
 export class Store {
   db: DatabaseSync;
+  economy: Economy;
   constructor(path: string) {
     this.db = new DatabaseSync(path);
-    this.db.exec(
-      readFileSync(
-        new URL("../migrations/001_initial.sql", import.meta.url),
-        "utf8",
-      ),
-    );
+    // Migrations idempotentes appliquées dans l'ordre ; user_version trace la dernière.
+    for (const file of MIGRATIONS)
+      this.db.exec(readFileSync(new URL("../migrations/" + file, import.meta.url), "utf8"));
+    this.economy = new Economy(this.db);
   }
   register(email: string, name: string, password: string) {
     const salt = randomBytes(16).toString("hex");
@@ -30,6 +31,7 @@ export class Store {
     } catch {
       throw Error("Adresse ou pseudo déjà utilisé.");
     }
+    this.economy.ensure(id);
     return this.session(id);
   }
   login(email: string, password: string) {
@@ -68,6 +70,36 @@ export class Store {
     return this.db
       .prepare("SELECT id,name,email FROM users WHERE id=?")
       .get(id) as { id: string; name: string; email: string };
+  }
+  rename(id: string, name: string) {
+    try {
+      this.db.prepare("UPDATE users SET name=? WHERE id=?").run(name, id);
+    } catch {
+      throw Error("Ce pseudo est déjà pris.");
+    }
+    return this.user(id);
+  }
+  checkPassword(id: string, password: string) {
+    const u = this.db.prepare("SELECT password FROM users WHERE id=?").get(id) as { password: string } | undefined;
+    if (!u) throw Error("Compte introuvable.");
+    const [salt, expected] = u.password.split(":");
+    if (!timingSafeEqual(scryptSync(password, salt, 64), Buffer.from(expected, "hex")))
+      throw Error("Mot de passe incorrect.");
+  }
+  /** Suppression RGPD : compte, sessions, wallet, inventaire, prefs (cascade). */
+  deleteUser(id: string) {
+    this.db.prepare("DELETE FROM users WHERE id=?").run(id);
+  }
+  getPrefs(id: string) {
+    const r = this.db.prepare("SELECT json,updated FROM prefs WHERE user_id=?").get(id) as { json: string; updated: number } | undefined;
+    return r ? { prefs: JSON.parse(r.json), updated: r.updated } : { prefs: null, updated: 0 };
+  }
+  setPrefs(id: string, prefs: unknown) {
+    const updated = Date.now();
+    this.db
+      .prepare("INSERT INTO prefs(user_id,json,updated) VALUES(?,?,?) ON CONFLICT(user_id) DO UPDATE SET json=excluded.json, updated=excluded.updated")
+      .run(id, JSON.stringify(prefs), updated);
+    return { updated };
   }
   all(): Tournament[] {
     return (

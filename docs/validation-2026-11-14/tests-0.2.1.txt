@@ -1,0 +1,355 @@
+
+> stackora@0.1.0 test
+> npm test -w server
+
+
+> @stackora/server@0.1.0 test
+> node --import tsx --test test/*.test.ts
+
+TAP version 13
+# (node:2909) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: HTTP multiplayer: registration, private join, legal actions, persistence and logout
+ok 1 - HTTP multiplayer: registration, private join, legal actions, persistence and logout
+  ---
+  duration_ms: 278.259947
+  type: 'test'
+  ...
+# Subtest: WebSocket authentication, hidden cards and reconnect resynchronization
+ok 2 - WebSocket authentication, hidden cards and reconnect resynchronization
+  ---
+  duration_ms: 61.854835
+  type: 'test'
+  ...
+# (node:2926) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: wallet: welcome bonus credited once, ledger consistent
+ok 3 - wallet: welcome bonus credited once, ledger consistent
+  ---
+  duration_ms: 174.098552
+  type: 'test'
+  ...
+# Subtest: shop: purchase, insufficient funds, replay, duplicate ownership, equip rules
+ok 4 - shop: purchase, insufficient funds, replay, duplicate ownership, equip rules
+  ---
+  duration_ms: 78.011011
+  type: 'test'
+  ...
+# Subtest: shop: concurrent purchases cannot overdraw
+ok 5 - shop: concurrent purchases cannot overdraw
+  ---
+  duration_ms: 59.356967
+  type: 'test'
+  ...
+# Subtest: public cosmetics are projected to opponents; client cannot inject them
+ok 6 - public cosmetics are projected to opponents; client cannot inject them
+  ---
+  duration_ms: 99.989458
+  type: 'test'
+  ...
+# Subtest: rewards: once per tournament, no rank rewards against bots only, daily caps
+ok 7 - rewards: once per tournament, no rank rewards against bots only, daily caps
+  ---
+  duration_ms: 127.674266
+  type: 'test'
+  ...
+# Subtest: IAP: disabled without configuration, never credits on client claim
+ok 8 - IAP: disabled without configuration, never credits on client claim
+  ---
+  duration_ms: 70.633082
+  type: 'test'
+  ...
+# Subtest: IAP: verified JWS chain credits once, forged signature refused, refund revokes
+ok 9 - IAP: verified JWS chain credits once, forged signature refused, refund revokes
+  ---
+  duration_ms: 191.799023
+  type: 'test'
+  ...
+# Subtest: prefs sync and account deletion
+ok 10 - prefs sync and account deletion
+  ---
+  duration_ms: 123.142539
+  type: 'test'
+  ...
+# Subtest: shuffle: 52 distinct cards and random ordering
+ok 11 - shuffle: 52 distinct cards and random ordering
+  ---
+  duration_ms: 1.67639
+  type: 'test'
+  ...
+# Subtest: wheel, flush, full house, quads, straight flush and large boards
+ok 12 - wheel, flush, full house, quads, straight flush and large boards
+  ---
+  duration_ms: 2.423897
+  type: 'test'
+  ...
+# Subtest: headsup button is SB, acts first preflop, second after flop
+ok 13 - headsup button is SB, acts first preflop, second after flop
+  ---
+  duration_ms: 0.832411
+  type: 'test'
+  ...
+# Subtest: out of turn, impossible check, negative and undersized raise rejected
+ok 14 - out of turn, impossible check, negative and undersized raise rejected
+  ---
+  duration_ms: 0.333249
+  type: 'test'
+  ...
+# Subtest: short all-in does not reopen a full raiser
+ok 15 - short all-in does not reopen a full raiser
+  ---
+  duration_ms: 0.93014
+  type: 'test'
+  ...
+# Subtest: cumulative short raises reopen action at a full raise threshold
+ok 16 - cumulative short raises reopen action at a full raise threshold
+  ---
+  duration_ms: 0.257543
+  type: 'test'
+  ...
+# Subtest: uncalled bet is returned; side pots preserve chips
+ok 17 - uncalled bet is returned; side pots preserve chips
+  ---
+  duration_ms: 2835.541536
+  type: 'test'
+  ...
+# Subtest: privacy: own cards only; folded cards and deck never serialized
+ok 18 - privacy: own cards only; folded cards and deck never serialized
+  ---
+  duration_ms: 0.625055
+  type: 'test'
+  ...
+# Subtest: 72 BB walk has no bounty
+ok 19 - 72 BB walk has no bounty
+  ---
+  duration_ms: 0.66861
+  type: 'test'
+  ...
+# Subtest: 72 offensive victory charges one BB from every opponent
+ok 20 - 72 offensive victory charges one BB from every opponent
+  ---
+  duration_ms: 0.569397
+  type: 'test'
+  ...
+# Subtest: 72 showdown winner receives capped bounty with no negative stacks
+ok 21 - 72 showdown winner receives capped bounty with no negative stacks
+  ---
+  duration_ms: 0.517223
+  type: 'test'
+  ...
+# Subtest: ghost wins and accumulates carry across consecutive hands
+ok 22 - ghost wins and accumulates carry across consecutive hands
+  ---
+  duration_ms: 0.950767
+  type: 'test'
+  ...
+# Subtest: ghost equality carries, human victory releases carry
+ok 23 - ghost equality carries, human victory releases carry
+  ---
+  duration_ms: 0.542793
+  type: 'test'
+  ...
+# Subtest: ghost resolves even when all humans except one fold
+ok 24 - ghost resolves even when all humans except one fold
+  ---
+  duration_ms: 0.296068
+  type: 'test'
+  ...
+# Subtest: red river opens extra rounds for reds, stops on black
+ok 25 - red river opens extra rounds for reds, stops on black
+  ---
+  duration_ms: 1.911783
+  type: 'test'
+  ...
+# Subtest: all-in red river runs out without extra actions
+ok 26 - all-in red river runs out without extra actions
+  ---
+  duration_ms: 2535.930374
+  type: 'test'
+  ...
+# Subtest: split pot including odd chip remains integer
+ok 27 - split pot including odd chip remains integer
+  ---
+  duration_ms: 1.169481
+  type: 'test'
+  ...
+# Subtest: table distributions match all specified examples
+ok 28 - table distributions match all specified examples
+  ---
+  duration_ms: 0.33118
+  type: 'test'
+  ...
+# Subtest: 16 to 14 balances 7+7; 9 to 8 merges; unsafe transfer rejected
+ok 29 - 16 to 14 balances 7+7; 9 to 8 merges; unsafe transfer rejected
+  ---
+  duration_ms: 1.855904
+  type: 'test'
+  ...
+# Subtest: actions are idempotent and reject stale versions
+ok 30 - actions are idempotent and reject stale versions
+  ---
+  duration_ms: 0.411182
+  type: 'test'
+  ...
+# Subtest: 1200 randomized complete hands across all variants conserve chips
+ok 31 - 1200 randomized complete hands across all variants conserve chips
+  ---
+  duration_ms: 424107.40232
+  type: 'test'
+  ...
+# Subtest: complete 9-player bot tournaments in every variant
+ok 32 - complete 9-player bot tournaments in every variant
+  ---
+  duration_ms: 38708.197122
+  type: 'test'
+  ...
+# Subtest: side pots and all-ins in every variant with deterministic tied board
+ok 33 - side pots and all-ins in every variant with deterministic tied board
+  ---
+  duration_ms: 11345.171485
+  type: 'test'
+  ...
+# Subtest: 72 all-in losers pay zero bounty and no chip debt
+ok 34 - 72 all-in losers pay zero bounty and no chip debt
+  ---
+  duration_ms: 2325.936317
+  type: 'test'
+  ...
+# Subtest: odd chip goes clockwise from the button
+ok 35 - odd chip goes clockwise from the button
+  ---
+  duration_ms: 0.343792
+  type: 'test'
+  ...
+# Subtest: transferred previous BB does not pay BB immediately after final-table merge
+ok 36 - transferred previous BB does not pay BB immediately after final-table merge
+  ---
+  duration_ms: 0.502521
+  type: 'test'
+  ...
+# Subtest: paid preflop all-in reveals called hands and equity once betting is closed
+ok 37 - paid preflop all-in reveals called hands and equity once betting is closed
+  ---
+  duration_ms: 2283.553007
+  type: 'test'
+  ...
+# Subtest: fold against Ghost runs complete board and publicly exposes Ghost
+ok 38 - fold against Ghost runs complete board and publicly exposes Ghost
+  ---
+  duration_ms: 0.242247
+  type: 'test'
+  ...
+# Subtest: seven-two bluff winner is exposed even without a showdown
+ok 39 - seven-two bluff winner is exposed even without a showdown
+  ---
+  duration_ms: 0.184898
+  type: 'test'
+  ...
+# Subtest: rank evaluator agrees with canonical evaluator on 5, 6 and 7 cards
+ok 40 - rank evaluator agrees with canonical evaluator on 5, 6 and 7 cards
+  ---
+  duration_ms: 68.129852
+  type: 'test'
+  ...
+# Subtest: JJ vs KK preflop: full enumeration, not the rule of 2
+ok 41 - JJ vs KK preflop: full enumeration, not the rule of 2
+  ---
+  duration_ms: 1968.885377
+  type: 'test'
+  ...
+# Subtest: turn: exact two winning jacks among 44 unseen cards
+ok 42 - turn: exact two winning jacks among 44 unseen cards
+  ---
+  duration_ms: 0.54662
+  type: 'test'
+  ...
+# Subtest: flop: draws to trips evaluated against full turn-river combinations
+ok 43 - flop: draws to trips evaluated against full turn-river combinations
+  ---
+  duration_ms: 2.389379
+  type: 'test'
+  ...
+# Subtest: board royal flush splits equity exactly between two players
+ok 44 - board royal flush splits equity exactly between two players
+  ---
+  duration_ms: 0.231854
+  type: 'test'
+  ...
+# Subtest: multiway equity sums to 100% including split pots
+ok 45 - multiway equity sums to 100% including split pots
+  ---
+  duration_ms: 3.104602
+  type: 'test'
+  ...
+# Subtest: flush completes on river and updates exact winner to 100%
+ok 46 - flush completes on river and updates exact winner to 100%
+  ---
+  duration_ms: 0.365191
+  type: 'test'
+  ...
+# Subtest: preflop runout: 2 seconds per card, five-second river, no future results or equity leak
+ok 47 - preflop runout: 2 seconds per card, five-second river, no future results or equity leak
+  ---
+  duration_ms: 2318.830462
+  type: 'test'
+  ...
+# Subtest: flop and turn all-ins only animate remaining cards
+ok 48 - flop and turn all-ins only animate remaining cards
+  ---
+  duration_ms: 3.677089
+  type: 'test'
+  ...
+# Subtest: three players and side pots conserve chips throughout presentation
+ok 49 - three players and side pots conserve chips throughout presentation
+  ---
+  duration_ms: 1.0934
+  type: 'test'
+  ...
+# Subtest: two clients and reconnect get the same clock and board; no client needed for expiry
+ok 50 - two clients and reconnect get the same clock and board; no client needed for expiry
+  ---
+  duration_ms: 1.778106
+  type: 'test'
+  ...
+# Subtest: 7/2 reveal on fold is independent of bounty qualification; only winner is public
+ok 51 - 7/2 reveal on fold is independent of bounty qualification; only winner is public
+  ---
+  duration_ms: 0.532254
+  type: 'test'
+  ...
+# Subtest: 7/2 aggression earns unchanged bounty and synchronized revelation
+ok 52 - 7/2 aggression earns unchanged bounty and synchronized revelation
+  ---
+  duration_ms: 0.350223
+  type: 'test'
+  ...
+# Subtest: ordinary fold winner and losing 7/2 stay private
+ok 53 - ordinary fold winner and losing 7/2 stay private
+  ---
+  duration_ms: 0.433928
+  type: 'test'
+  ...
+# (node:3000) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Stripe disabled: checkout refused, nothing simulated
+ok 54 - Stripe disabled: checkout refused, nothing simulated
+  ---
+  duration_ms: 155.176808
+  type: 'test'
+  ...
+# Subtest: Stripe Checkout: server-verified credit, idempotent, owner-bound, amount-checked, webhooks and refunds
+ok 55 - Stripe Checkout: server-verified credit, idempotent, owner-bound, amount-checked, webhooks and refunds
+  ---
+  duration_ms: 165.02636
+  type: 'test'
+  ...
+1..55
+# tests 55
+# suites 0
+# pass 55
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 491616.553451
+EXIT 0

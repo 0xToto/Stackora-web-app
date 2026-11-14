@@ -1,6 +1,10 @@
-# STACKORA · version jouable 0.1
+# STACKORA · version 0.2
 
 Your table. Your rules.
+
+> **Nouveautés 0.2** — refonte visuelle complète (design system « Salon nocturne »), table de poker redessinée et animée, onglets Règles et Exercices (quiz des positions, entraîneur de décisions), centre de Paramètres synchronisé avec le compte, économie StackCoins autoritaire côté serveur (boutique cosmétique, inventaire, missions, récompenses anti-farming, vérification des achats App Store). Détails, limites et activation restante : **[docs/STACKORA_V2.md](docs/STACKORA_V2.md)**. Le development build iOS doit être **recompilé** (nouveaux modules natifs).
+>
+> **0.2.1** — achat de StackCoins sur la version web via Stripe ([docs/PAIEMENT_WEB.md](docs/PAIEMENT_WEB.md)) et entraîneur GTO alimenté par de vraies solutions (Nash push/fold, solveur open source postflop).
 
 Application React Native / Expo et serveur de poker privé. Cette livraison réalise le premier parcours jouable : compte email, tournoi, invitation par code, bots, mains complètes, multi-tables et résultats. Elle n'est pas la réalisation intégrale du cahier des charges ni une application déjà publiée ou signée pour iOS.
 
