@@ -3,7 +3,9 @@ import { storage as SecureStore } from "./storage";
 import type { User, Game, Summary, Profile, Catalog, Mission, Slot, Progress } from "./types";
 export function useStackora() {
   const [url, setUrl] = useState(
-    process.env.EXPO_PUBLIC_API_URL ?? (typeof window !== "undefined" ? window.location.origin : "http://192.168.1.20:3001"),
+    // Web : le serveur STACKORA tourne sur la même machine, port 3001 (pas sur le port d'Expo).
+    process.env.EXPO_PUBLIC_API_URL ??
+      (typeof window !== "undefined" && window.location?.hostname ? `${window.location.protocol}//${window.location.hostname}:3001` : "http://192.168.1.20:3001"),
   );
   const [token, setToken] = useState("");
   const [user, setUser] = useState<User | null>(null);
@@ -23,7 +25,9 @@ export function useStackora() {
       .then((s) => {
         if (s) {
           const v = JSON.parse(s);
-          setUrl(v.url);
+          // Ancienne session web enregistrée avec l'adresse d'Expo : on garde l'adresse par défaut.
+          const expoOrigin = typeof window !== "undefined" && v.url === window.location?.origin;
+          if (!expoOrigin) setUrl(v.url);
           setToken(v.token);
           setUser(v.user);
         }
@@ -36,7 +40,11 @@ export function useStackora() {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 12000);
       try {
-        const r = await fetch(url.replace(/\/$/, "") + path, {
+        const base = url.replace(/\/$/, "");
+        const unreachable = `Le serveur STACKORA ne répond pas à l'adresse ${base}. Vérifie qu'il est lancé (npm run server) et l'adresse dans « Serveur de test ».`;
+        let r: Response;
+        try {
+          r = await fetch(base + path, {
           method: method ?? (body ? "POST" : "GET"),
           headers: {
             "Content-Type": "application/json",
@@ -44,8 +52,19 @@ export function useStackora() {
           },
           body: body ? JSON.stringify(body) : undefined,
           signal: controller.signal,
-        });
-        const v = await r.json();
+          });
+        } catch (e) {
+          throw Error(e instanceof Error && e.name === "AbortError" ? `Le serveur ${base} met trop de temps à répondre.` : unreachable);
+        }
+        // Réponse vide ou non JSON : ce n'est pas le serveur STACKORA (mauvaise adresse ou port).
+        const text = await r.text();
+        let v: any;
+        try {
+          v = text ? JSON.parse(text) : null;
+        } catch {
+          v = null;
+        }
+        if (v === null) throw Error(r.ok ? unreachable : `${unreachable} (code ${r.status})`);
         if (!r.ok) throw Error(v.error ?? "Erreur serveur");
         return v;
       } finally {

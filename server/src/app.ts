@@ -58,7 +58,13 @@ export async function buildApp(path = "stackora.sqlite", runTimers = true) {
     tournament: string | null;
   }>();
   await app.register(cors, {
-    origin: process.env.CORS_ORIGIN?.split(",") ?? false,
+    // CORS_ORIGIN explicite en production ; en développement, l'app web locale
+    // (localhost, 127.0.0.1 ou réseau privé, tout port) est autorisée par défaut.
+    origin: process.env.CORS_ORIGIN
+      ? process.env.CORS_ORIGIN.split(",")
+      : process.env.NODE_ENV === "production"
+        ? false
+        : /^https?:\/\/(localhost|127\.0\.0\.1|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+)(:\d+)?$/,
   });
   await app.register(rateLimit, { max: 120, timeWindow: "1 minute" });
   await app.register(websocket, { options: { maxPayload: 4096 } });
