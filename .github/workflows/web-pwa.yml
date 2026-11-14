@@ -1,31 +1,51 @@
+
 name: STACKORA - Construire la PWA
+
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches:
+      - main
     paths:
       - "mobile/**"
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/web-pwa.yml"
+
 permissions:
   contents: read
+
 jobs:
   web-pwa:
+    name: Build STACKORA Web
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Recuperer le code GitHub
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: "24"
           cache: npm
-      - run: npm ci
-      - run: npm run typecheck -w mobile
-      - run: npm run build:web
+
+      - name: Installer les dependances
+        run: npm ci
+
+      - name: Verifier TypeScript
+        run: npm run typecheck -w mobile
+
+      - name: Compiler STACKORA pour Netlify
+        run: npm run build:web
         env:
           EXPO_PUBLIC_API_URL: https://api--stackora--rc725y9s4fxd.code.run
-      - uses: actions/upload-artifact@v4
+          CI: "true"
+
+      - name: Creer le ZIP pour Netlify
+        uses: actions/upload-artifact@v4
         with:
           name: STACKORA-PWA-site-web
-          path: mobile/dist
+          path: mobile/dist/
           if-no-files-found: error
+          retention-days: 30
